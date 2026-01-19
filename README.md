@@ -8,14 +8,15 @@ You can try the live demo here: [https://abdulrazzakswai.github.io/intelliblue](
 
 ## Features
 
-*   **Dashboard**: Monitor security alerts and logs.
-*   **Chat Assistant**: Helps analyze logs and suggests actions for threats.
-*   **User Roles**: Separate views for Analysts and Admins.
-*   **Design**: Dark and Light mode support.
+- **Dashboard**: Monitor security alerts and logs.
+- **Chat Assistant**: Helps analyze logs and suggests actions for threats.
+- **User Roles**: Separate views for Analysts and Admins.
+- **Design**: Dark and Light mode support.
 
 ## Technologies
 
-*   HTML, CSS, JavaScript
+- HTML, CSS, JavaScript
 
 ---
-*Created for educational purposes.*
+
+_Created for educational purposes._
