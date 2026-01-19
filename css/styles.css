@@ -349,6 +349,13 @@ body {
     max-width: 85%;
 }
 
+.message ul, 
+.message ol {
+    margin-left: 25px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
 .message.user {
     align-self: flex-end;
     background-color: var(--chat-user-bg);
