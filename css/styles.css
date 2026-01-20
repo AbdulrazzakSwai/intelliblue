@@ -593,12 +593,10 @@ body {
     cursor: pointer;
 }
 
-/* Typing Animation cursor - Removed as per request */
 .typing-content::after {
     content: none;
 }
 
-/* Markdown simulation in chat */
 .bot-response-content strong { font-weight: 700; color: var(--text-primary); }
 .bot-response-content ul { padding-left: 20px; margin: 5px 0; }
 .bot-response-content li { margin-bottom: 3px; }
@@ -610,11 +608,10 @@ body {
     font-size: 0.9em;
 }
 
-/* Scrollbar styling */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
 
-/* Generic Icon Class */
 .icon { font-style: normal; margin-right: 5px; display: inline-block; }
+
