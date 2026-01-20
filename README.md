@@ -19,4 +19,4 @@ You can try the live demo here: [https://abdulrazzakswai.github.io/intelliblue](
 
 ---
 
-_Created for educational purposes._
+_Created for demonstration purposes._
