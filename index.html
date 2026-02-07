@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-
+    <canvas id="bg-particles"></canvas>
     <div class="app-container">
         <nav class="sidebar">
             <div class="logo-area">
@@ -33,6 +33,9 @@
                 </li>
                 <li data-view="admin" class="admin-only" style="display: none;">
                     <a href="#"><span class="icon">⚙️</span> Settings</a>
+                </li>
+                <li style="margin-top: auto;">
+                    <a href="#" id="about-btn"><span class="icon">ℹ️</span> About</a>
                 </li>
             </ul>
 
@@ -229,6 +232,32 @@
             <div class="modal-footer">
                 <button class="btn-cancel" id="cancel-download">Cancel</button>
                 <button class="btn-confirm" id="confirm-download">Download PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="about-modal" class="modal-backdrop hidden">
+        <div class="modal" style="width: 500px; max-width: 90%;">
+            <div class="modal-header">
+                <h3>About IntelliBlue</h3>
+                <button class="close-modal" id="close-about-modal"><span class="icon">❌</span></button>
+            </div>
+            <div class="modal-body" style="line-height: 1.5;">
+                <p>IntelliBlue is a Security Operations Center (SOC) dashboard built for our Capstone 2 project in the BSc Cybersecurity program.</p>
+                <p style="margin-top: 10px;">It integrates AI analysis and chatbots into SOC workflows to help security analysts monitor alerts and analyze threats in a simulated environment.</p>
+                
+                <h4 style="margin-top: 15px; margin-bottom: 5px;">Features</h4>
+                <ul style="padding-left: 20px;">
+                    <li><strong>Dashboard:</strong> Monitor security alerts and logs.</li>
+                    <li><strong>Chat Assistant:</strong> Helps analyze logs and suggests actions for threats.</li>
+                    <li><strong>User Roles:</strong> Separate views for Analysts and Admins.</li>
+                    <li><strong>Design:</strong> Dark and Light mode support.</li>
+                </ul>
+                
+                <h4 style="margin-top: 15px; margin-bottom: 5px;">Technologies</h4>
+                <p>HTML, CSS, JavaScript</p>
+                
+                <p class="subtext" style="font-style: italic; margin-top: 20px;">Created for demonstration purposes.</p>
             </div>
         </div>
     </div>
