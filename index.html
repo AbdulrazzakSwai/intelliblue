@@ -8,7 +8,7 @@
 </head>
 <body>
     <canvas id="bg-particles"></canvas>
-    <div class="app-containerf">
+    <div class="app-container">
         <nav class="sidebar">
             <div class="logo-area">
                 <span class="icon">🛡️</span>
@@ -258,24 +258,6 @@
                 <p>HTML, CSS, JavaScript</p>
                 
                 <p class="subtext" style="font-style: italic; margin-top: 20px;">Created for demonstration purposes.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="false-positive-modal" class="modal-backdrop hidden">
-        <div class="modal">
-            <div class="modal-header">
-                <h3>Flag as False Positive</h3>
-                <button class="close-modal" id="close-fp-modal-btn"><span class="icon">❌</span></button>
-            </div>
-            <div class="modal-body">
-                <p>Please provide a justification for flagging this incident as a False Positive.</p>
-                <p class="subtext">This note will be archived with the alert for audit purposes.</p>
-                <textarea id="fp-justification" style="width: 100%; height: 100px; margin-top: 15px; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-body); color: var(--text-primary); resize: vertical; font-family: inherit;" placeholder="Describe why this alert is a false positive (e.g., Authorized scan, known behavior)..."></textarea>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-cancel" id="cancel-fp-btn">Cancel</button>
-                <button class="btn-confirm" id="confirm-fp-action" style="background-color: var(--text-secondary); color: white;">Confirm FP</button>
             </div>
         </div>
     </div>

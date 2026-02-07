@@ -49,7 +49,6 @@
     <div style="margin-top:10px;">
         <button class="btn-confirm dynamic-report-btn">Generate Incident Report</button>
         <button class="btn-escalate dynamic-escalate-btn">Escalate to Tier 2</button>
-        <button class="btn-false-positive dynamic-fp-btn">False Positive</button>
     </div>
     `;
 
@@ -209,43 +208,9 @@
         `;
         uploadedFilesList.insertBefore(li, uploadedFilesList.firstChild);
     }
-    const fpModal = document.getElementById('false-positive-modal');
-    const closeFpBtn = document.getElementById('close-fp-modal-btn');
-    const cancelFpBtn = document.getElementById('cancel-fp-btn');
-    const confirmFpActionBtn = document.getElementById('confirm-fp-action');
-    const fpJustification = document.getElementById('fp-justification');
-
-    function closeFpModalFunc() {
-        if(fpModal) {
-            fpModal.classList.add('hidden');
-            if(fpJustification) fpJustification.value = '';
-        }
-    }
-
-    if(closeFpBtn) closeFpBtn.addEventListener('click', closeFpModalFunc);
-    if(cancelFpBtn) cancelFpBtn.addEventListener('click', closeFpModalFunc);
-    
-    if(confirmFpActionBtn) {
-        confirmFpActionBtn.addEventListener('click', () => {
-             const reason = fpJustification.value.trim();
-             if(!reason) {
-                 alert("Please provide a reason.");
-                 return;
-             }
-             closeFpModalFunc();
-             addUserMessage(`Action: Flagged as False Positive. Reason: ${reason}`);
-             setTimeout(() => {
-                 addBotMessage("<strong>Alert Dismissed</strong><br>The alert has been classified as a False Positive. Finding archived.", true);
-             }, 800);
-        });
-    }
-
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('dynamic-report-btn')) {
              modalBackdrop.classList.remove('hidden');
-        }
-        if (e.target.classList.contains('dynamic-fp-btn')) {
-             if (fpModal) fpModal.classList.remove('hidden');
         }
         if (e.target.classList.contains('dynamic-escalate-btn')) {
              e.target.disabled = true;
