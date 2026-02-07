@@ -616,6 +616,28 @@ body {
     cursor: pointer;
 }
 
+.btn-escalate {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    background-color: var(--danger);
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
+}
+.btn-escalate:hover { background-color: #dc2626; }
+
+.btn-false-positive {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    background-color: var(--text-secondary);
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
+}
+.btn-false-positive:hover { background-color: #475569; }
+
 .typing-content::after {
     content: none;
 }
