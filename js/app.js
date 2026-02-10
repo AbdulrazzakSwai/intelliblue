@@ -13,6 +13,12 @@
     const fileInput = document.getElementById('file-upload');
     const uploadedFilesList = document.getElementById('uploaded-files-list');
     
+    const fpModal = document.getElementById('false-positive-modal');
+    const closeFpModalBtn = document.querySelector('.close-modal-fp');
+    const cancelFpBtn = document.getElementById('cancel-fp');
+    const submitFpBtn = document.getElementById('submit-fp');
+    const fpDetails = document.getElementById('fp-details');
+
     const modalBackdrop = document.getElementById('modal-backdrop');
     const closeModalBtn = document.querySelector('.close-modal');
     const cancelDownloadBtn = document.getElementById('cancel-download');
@@ -81,7 +87,19 @@
                 
                 setTimeout(() => {
                     msgDiv.innerHTML = '';
-                    typeHtmlMessage(msgDiv, htmlContent);
+                    typeHtmlMessage(msgDiv, htmlContent, () => {
+                        let btnContainer = msgDiv.querySelector('div[style*="margin-top"]');
+                        if (!btnContainer) {
+                            btnContainer = document.createElement('div');
+                            btnContainer.style.marginTop = '10px';
+                            msgDiv.appendChild(btnContainer);
+                        }
+                        const fpBtn = document.createElement('button');
+                        fpBtn.className = 'btn-false-positive';
+                        fpBtn.textContent = 'False Positive';
+                        btnContainer.appendChild(fpBtn);
+                        scrollToBottom();
+                    });
                 }, 1500);
             } else {
                 let i = 0;
@@ -101,7 +119,7 @@
         }
     }
 
-    function typeHtmlMessage(element, html) {
+    function typeHtmlMessage(element, html, onComplete) {
         element.innerHTML = html;
         
         const queue = [];
@@ -125,6 +143,7 @@
         function processQueue() {
             if (index >= queue.length) {
                 element.classList.remove('typing-content');
+                if (onComplete) onComplete();
                 return;
             }
             
@@ -212,6 +231,9 @@
         if (e.target.classList.contains('dynamic-report-btn')) {
              modalBackdrop.classList.remove('hidden');
         }
+        if (e.target.classList.contains('btn-false-positive')) {
+             fpModal.classList.remove('hidden');
+        }
         if (e.target.classList.contains('dynamic-escalate-btn')) {
              e.target.disabled = true;
              e.target.textContent = "Escalating...";
@@ -221,6 +243,34 @@
              }, 800);
         }
     });
+
+    function closeFpModal() {
+        fpModal.classList.add('hidden');
+        fpDetails.value = '';
+    }
+
+    if (closeFpModalBtn) closeFpModalBtn.addEventListener('click', closeFpModal);
+    if (cancelFpBtn) cancelFpBtn.addEventListener('click', closeFpModal);
+    if (fpModal) {
+        fpModal.addEventListener('click', (e) => {
+            if (e.target === fpModal) closeFpModal();
+        });
+    }
+
+    if (submitFpBtn) {
+        submitFpBtn.addEventListener('click', () => {
+            const reason = fpDetails.value.trim();
+            if (!reason) {
+                alert('Please provide a reason.');
+                return;
+            }
+            closeFpModal();
+            addUserMessage(`False Positive Report: ${reason}`);
+            setTimeout(() => {
+                addBotMessage("Thank you. This analysis has been flagged as a false positive and sent for review.", false);
+            }, 800);
+        });
+    }
 
     closeModalBtn.addEventListener('click', closeDtModal);
     cancelDownloadBtn.addEventListener('click', closeDtModal);
