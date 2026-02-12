@@ -70,7 +70,7 @@
         scrollToBottom();
     }
 
-    function addBotMessage(htmlContent, animate = false) {
+    function addBotMessage(htmlContent, animate = false, showFpBtn = false) {
         const msgDiv = document.createElement('div');
         msgDiv.className = 'message bot';
         chatMessages.appendChild(msgDiv); 
@@ -87,16 +87,18 @@
                 setTimeout(() => {
                     msgDiv.innerHTML = '';
                     typeHtmlMessage(msgDiv, htmlContent, () => {
-                        let btnContainer = msgDiv.querySelector('div[style*="margin-top"]');
-                        if (!btnContainer) {
-                            btnContainer = document.createElement('div');
-                            btnContainer.style.marginTop = '10px';
-                            msgDiv.appendChild(btnContainer);
+                        if (showFpBtn) {
+                            let btnContainer = msgDiv.querySelector('div[style*="margin-top"]');
+                            if (!btnContainer) {
+                                btnContainer = document.createElement('div');
+                                btnContainer.style.marginTop = '10px';
+                                msgDiv.appendChild(btnContainer);
+                            }
+                            const fpBtn = document.createElement('button');
+                            fpBtn.className = 'btn-false-positive';
+                            fpBtn.textContent = 'False Positive';
+                            btnContainer.appendChild(fpBtn);
                         }
-                        const fpBtn = document.createElement('button');
-                        fpBtn.className = 'btn-false-positive';
-                        fpBtn.textContent = 'False Positive';
-                        btnContainer.appendChild(fpBtn);
                         scrollToBottom();
                     });
                 }, 1500);
@@ -185,7 +187,7 @@
         addUserMessage(text);
         chatInput.value = '';
         setTimeout(() => {
-            addBotMessage(TROJAN_SCENARIO_RESPONSE, true);
+            addBotMessage(TROJAN_SCENARIO_RESPONSE, true, true);
         }, 500);
     }
 
@@ -202,7 +204,7 @@
             updateUploadedFilesList(fileName);
             fileInput.value = '';
             setTimeout(() => {
-                addBotMessage(TROJAN_SCENARIO_RESPONSE, true);
+                addBotMessage(TROJAN_SCENARIO_RESPONSE, true, true);
             }, 500);
         }
     });
