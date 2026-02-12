@@ -23,7 +23,6 @@
     const closeModalBtn = document.querySelector('.close-modal');
     const cancelDownloadBtn = document.getElementById('cancel-download');
     const confirmDownloadBtn = document.getElementById('confirm-download');
-    const logoutBtn = document.getElementById('logout-btn');
     themeToggle.addEventListener('click', () => {
         const html = document.documentElement;
         const currentTheme = html.getAttribute('data-theme');
@@ -320,10 +319,6 @@
             if (e.target === aboutModal) closeAboutModalFunc();
         });
     }
-
-    logoutBtn.addEventListener('click', () => {
-        document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#f4f7fa;flex-direction:column;"><h2>Logged Out</h2><p>Reload page to restart demo.</p></div>';
-    });
 
     const canvas = document.getElementById('bg-particles');
     if (canvas) {
