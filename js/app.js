@@ -58,7 +58,7 @@
     </div>
     `;
 
-    const DEFAULT_GREETING = "I am IntelliBlue, how can I help you?";
+    const DEFAULT_GREETING = "I am IntelliBlue, please upload your security files so that I can analyze them.";
     setTimeout(() => {
         addBotMessage(DEFAULT_GREETING, true);
     }, 500);
