@@ -1,0 +1,10 @@
+[
+  {"timestamp": "2024-01-15T10:00:15Z", "sid": 1000001, "msg": "BRUTE-FORCE SSH Login Attempt", "classtype": "attempted-admin", "priority": 2, "src_ip": "192.168.1.150", "dst_ip": "10.0.0.1", "src_port": 54320, "dst_port": 22, "protocol": "TCP"},
+  {"timestamp": "2024-01-15T10:01:10Z", "sid": 1000002, "msg": "PORT-SCAN TCP SYN Scan", "classtype": "attempted-recon", "priority": 3, "src_ip": "192.168.1.150", "dst_ip": "10.0.0.0", "src_port": 55000, "dst_port": 443, "protocol": "TCP"},
+  {"timestamp": "2024-01-15T10:05:05Z", "sid": 1000003, "msg": "WEB-ATTACK SQL Injection Attempt", "classtype": "web-application-attack", "priority": 1, "src_ip": "203.0.113.5", "dst_ip": "10.0.0.5", "src_port": 31000, "dst_port": 80, "protocol": "TCP"},
+  {"timestamp": "2024-01-15T10:05:30Z", "sid": 1000004, "msg": "WEB-ATTACK Directory Traversal", "classtype": "web-application-attack", "priority": 1, "src_ip": "192.168.1.200", "dst_ip": "10.0.0.5", "src_port": 41235, "dst_port": 80, "protocol": "TCP"},
+  {"timestamp": "2024-01-15T10:02:15Z", "sid": 1000005, "msg": "MALWARE Potential C2 Beacon", "classtype": "trojan-activity", "priority": 1, "src_ip": "10.0.0.15", "dst_ip": "203.0.113.99", "src_port": 4444, "dst_port": 443, "protocol": "TCP"},
+  {"timestamp": "2024-01-15T10:03:45Z", "sid": 1000006, "msg": "POLICY-VIOLATION Unauthorized Protocol", "classtype": "policy-violation", "priority": 3, "src_ip": "10.0.0.20", "dst_ip": "8.8.8.8", "src_port": 12345, "dst_port": 53, "protocol": "UDP"},
+  {"timestamp": "2024-01-15T10:04:20Z", "sid": 1000007, "msg": "EXPLOIT Buffer Overflow Attempt", "classtype": "attempted-admin", "priority": 1, "src_ip": "192.168.1.150", "dst_ip": "10.0.0.2", "src_port": 54400, "dst_port": 135, "protocol": "TCP"},
+  {"timestamp": "2024-01-15T10:06:30Z", "sid": 1000008, "msg": "DOS SYN Flood", "classtype": "denial-of-service", "priority": 2, "src_ip": "192.168.1.150", "dst_ip": "10.0.0.1", "src_port": 0, "dst_port": 80, "protocol": "TCP"}
+]

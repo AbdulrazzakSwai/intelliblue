@@ -1,0 +1,12 @@
+{
+  "timestamp": ["timestamp", "time", "@timestamp", "event_time", "datetime", "date", "EventTime"],
+  "username": ["user", "username", "src_user", "account", "user_name", "subject", "UserName", "TargetUserName"],
+  "src_ip": ["src_ip", "source_ip", "src", "sourceIPAddress", "client_ip", "remote_addr", "IpAddress", "SourceIp"],
+  "dst_ip": ["dst_ip", "dest_ip", "destination_ip", "dst", "dest", "DestinationIp"],
+  "host": ["host", "hostname", "computer", "machine", "device", "ComputerName", "Workstation"],
+  "event_type": ["action", "event_type", "eventType", "type", "EventType", "category", "EventName"],
+  "severity": ["severity", "priority", "level", "criticality", "Severity"],
+  "message": ["message", "msg", "description", "detail", "log", "Message", "Details"],
+  "src_port": ["src_port", "source_port", "sport", "SourcePort"],
+  "dst_port": ["dst_port", "dest_port", "dport", "DestinationPort"]
+}

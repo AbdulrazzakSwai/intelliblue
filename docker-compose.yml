@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: intelliblue-postgres
+    environment:
+      POSTGRES_DB: intelliblue
+      POSTGRES_USER: intelliblue
+      POSTGRES_PASSWORD: intelliblue
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U intelliblue"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: intelliblue-backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://intelliblue:intelliblue@postgres:5432/intelliblue
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      LLM_MODEL_PATH: /models/model.gguf
+      UPLOAD_DIR: /uploads
+    volumes:
+      - ./models:/models:ro
+      - uploads:/uploads
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+volumes:
+  postgres_data:
+  uploads:

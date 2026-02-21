@@ -1,0 +1,8 @@
+{
+  "brute_force_window_minutes": 10,
+  "brute_force_threshold": 5,
+  "web_scan_window_minutes": 5,
+  "web_scan_url_threshold": 15,
+  "web_scan_error_threshold": 10,
+  "ids_correlation_window_minutes": 10
+}

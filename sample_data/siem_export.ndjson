@@ -1,0 +1,20 @@
+{"timestamp": "2024-01-15T10:00:01Z", "user": "alice", "src_ip": "192.168.1.150", "action": "login_failure", "host": "dc01", "message": "Failed authentication attempt"}
+{"timestamp": "2024-01-15T10:00:45Z", "user": "alice", "src_ip": "192.168.1.150", "action": "login_failure", "host": "dc01", "message": "Failed authentication attempt"}
+{"timestamp": "2024-01-15T10:01:22Z", "user": "alice", "src_ip": "192.168.1.150", "action": "login_failure", "host": "dc01", "message": "Failed authentication attempt"}
+{"timestamp": "2024-01-15T10:02:05Z", "user": "alice", "src_ip": "192.168.1.150", "action": "login_failure", "host": "dc01", "message": "Failed authentication attempt"}
+{"timestamp": "2024-01-15T10:02:48Z", "user": "alice", "src_ip": "192.168.1.150", "action": "login_failure", "host": "dc01", "message": "Failed authentication attempt"}
+{"timestamp": "2024-01-15T10:03:30Z", "user": "alice", "src_ip": "192.168.1.150", "action": "login_failure", "host": "dc01", "message": "Failed authentication attempt - account locked"}
+{"timestamp": "2024-01-15T10:04:00Z", "user": "bob", "src_ip": "192.168.1.150", "action": "login_failure", "host": "dc01", "message": "Failed authentication attempt"}
+{"timestamp": "2024-01-15T10:04:30Z", "user": "carol", "src_ip": "192.168.1.150", "action": "login_failure", "host": "dc01", "message": "Failed authentication attempt"}
+{"timestamp": "2024-01-15T09:00:00Z", "user": "jsmith", "src_ip": "10.0.0.25", "action": "login_success", "host": "ws01", "message": "Successful login"}
+{"timestamp": "2024-01-15T09:15:00Z", "user": "mjones", "src_ip": "10.0.0.30", "action": "login_success", "host": "ws02", "message": "Successful login"}
+{"timestamp": "2024-01-15T10:30:00Z", "user": "admin", "src_ip": "192.168.1.1", "action": "login_success", "host": "mgmt-server", "message": "Admin login from management console"}
+{"timestamp": "2024-01-15T10:00:30Z", "user": "svc-account", "src_ip": "192.168.1.150", "action": "login_failure", "host": "app-server", "message": "Service account authentication failed"}
+{"timestamp": "2024-01-15T11:00:00Z", "user": "hacker", "src_ip": "192.168.1.150", "action": "login_failure", "host": "vpn", "message": "VPN authentication failed"}
+{"timestamp": "2024-01-15T11:00:30Z", "user": "admin", "src_ip": "192.168.1.150", "action": "login_failure", "host": "vpn", "message": "VPN authentication failed"}
+{"timestamp": "2024-01-15T11:01:00Z", "user": "root", "src_ip": "192.168.1.150", "action": "login_failure", "host": "linux01", "message": "SSH authentication failed"}
+{"timestamp": "2024-01-15T08:00:00Z", "user": "service-monitor", "src_ip": "10.0.0.5", "action": "login_success", "host": "monitor01", "message": "Monitoring service authenticated"}
+{"timestamp": "2024-01-15T12:00:00Z", "user": "analyst1", "src_ip": "10.0.1.50", "action": "login_success", "host": "soc-workstation", "message": "SOC analyst login"}
+{"timestamp": "2024-01-15T10:05:00Z", "user": "alice", "src_ip": "10.0.0.10", "action": "login_success", "host": "dc01", "message": "Successful login after failures - possible compromise"}
+{"timestamp": "2024-01-15T07:00:00Z", "src_ip": "10.0.0.1", "action": "firewall_block", "host": "fw01", "message": "Outbound connection blocked to malicious IP"}
+{"timestamp": "2024-01-15T13:00:00Z", "user": "dbadmin", "src_ip": "172.16.0.100", "action": "login_success", "host": "db-server", "message": "Database admin login"}
