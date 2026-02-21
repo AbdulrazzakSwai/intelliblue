@@ -1,0 +1,13 @@
+from pydantic import BaseModel
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+    role: str
+    username: str
+
+
+class TokenData(BaseModel):
+    user_id: str | None = None
+    role: str | None = None
