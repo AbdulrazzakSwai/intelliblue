@@ -194,24 +194,34 @@ def api_chat():
     user_message = request.json.get('message')
     session_id = request.json.get('session_id', 'default')
     alert_id = request.json.get('alert_id')
+    is_regenerate = request.json.get('regenerate', False)
     
-    if not user_message:
+    if not is_regenerate and not user_message:
         return jsonify({"error": "No message provided"}), 400
 
-    final_user_message = user_message
-    if alert_id:
-        alert = Alert.query.get(alert_id)
-        if alert:
-            final_user_message += f"\n\n*(Attached Reference: {alert.title})*\n\n> **Severity Level**: {alert.severity}\n> \n> {alert.description}"
-
     session = ChatSession.query.get(session_id)
-    if session and session.title == "New Chat":
+    if session and session.title == "New Chat" and not is_regenerate:
         session.title = "Generating Title..."
         db.session.commit()
 
-    user_msg_record = ChatMessage(sender="User", text=final_user_message, session_id=session_id)
-    db.session.add(user_msg_record)
-    db.session.commit()
+    if is_regenerate:
+        last_msg = ChatMessage.query.filter_by(session_id=session_id).order_by(ChatMessage.timestamp.desc()).first()
+        if last_msg and last_msg.sender == "IntelliBlue":
+            db.session.delete(last_msg)
+            db.session.commit()
+            
+        last_user_msg = ChatMessage.query.filter_by(session_id=session_id, sender="User").order_by(ChatMessage.timestamp.desc()).first()
+        user_message = last_user_msg.text if last_user_msg else ""
+    else:
+        final_user_message = user_message
+        if alert_id:
+            alert = Alert.query.get(alert_id)
+            if alert:
+                final_user_message += f"\n\n*(Attached Reference: {alert.title})*\n\n> **Severity Level**: {alert.severity}\n> \n> {alert.description}"
+
+        user_msg_record = ChatMessage(sender="User", text=final_user_message, session_id=session_id)
+        db.session.add(user_msg_record)
+        db.session.commit()
 
     history_records = ChatMessage.query.filter_by(session_id=session_id).order_by(ChatMessage.timestamp.asc()).all()
     history_records = history_records[-10:] 
@@ -225,7 +235,7 @@ Keep answers detailed, technical, clear, and professional, but keep a polite and
 Do not use introductory conversational filler phrases.
 Start your technical answer immediately.
 MUST USE single backticks (`) to highlight technical terms, IP addresses, file paths, and commands.
-CRITICAL: Defang all IP addresses and URLs using brackets. Example: 192.168.1.1 becomes 192[.]168[.]1[.]1 and http://evil.com becomes http[://]evil[.]com.
+CRITICAL: Defang all IP addresses and URLs using brackets. Example: 192.168.1.1 becomes 192[.]168[.]1[.]1 and http://evil.com becomes http[://]evil[.]com. Do not defang other data.
 ALWAYS format lists using bullet points (* or -) with each item on a brand new line.
 ALWAYS bold the key entity or title at the beginning of each bullet point.
 ALWAYS end every single sentence and bullet point with a full stop (.).
@@ -238,7 +248,10 @@ Avoid ambiguity and be as specific as possible when describing potential threats
     payload = {
         "model": "llama3",
         "prompt": combined_prompt,
-        "stream": True
+        "stream": True,
+        "options": {
+            "temperature": 0.9 if is_regenerate else 0.7
+        }
     }
 
     def generate():
@@ -399,7 +412,7 @@ CRITICAL INSTRUCTIONS:
 - Do NOT include any introductory conversational text.
 - Do NOT wrap your response in markdown code blocks or triple backticks (```).
 - MUST USE single backticks (`) to highlight technical terms, IP addresses, URLs, file paths, and commands.
-- CRITICAL: Defang all IP addresses and URLs using brackets. Example: 192.168.1.1 becomes 192[.]168[.]1[.]1 and http://evil.com becomes http[://]evil[.]com.
+- CRITICAL: Defang all IP addresses and URLs using brackets. Example: 192.168.1.1 becomes 192[.]168[.]1[.]1 and http://evil.com becomes http[://]evil[.]com. Do not defang other data.
 - SEVERITY RESTRICTION: You MUST only use one of these four levels: Low, Medium, High, or Critical.
 - ALWAYS format items under IoCs and Mitigation as a bulleted list (using * or -).
 - ALWAYS place each bullet point on a brand new line.

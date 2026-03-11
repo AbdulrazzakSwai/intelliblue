@@ -10,7 +10,7 @@
         {% for msg in history %}
             {% if msg.sender == 'User' %}
                 <div class="flex justify-end">
-                    <div class="bg-gradient-to-br from-cyber-blue to-blue-700 text-white p-4 rounded-2xl rounded-tr-sm max-w-2xl shadow-[0_4px_15px_rgba(14,165,233,0.3)] font-sans border border-blue-500/30">
+                    <div class="bg-gradient-to-br from-cyber-blue to-blue-700 text-white p-4 rounded-2xl rounded-tr-sm max-w-2xl shadow-[0_4px_15px_rgba(14,165,233,0.3)] font-sans border border-blue-500/30 user-message-text" data-raw-text="{{ msg.text|urlencode }}">
                         <div class="flex items-center mb-1 pb-1 border-b border-blue-400/30 opacity-80 justify-end">
                             <span class="text-[10px] uppercase tracking-widest font-display font-medium mr-2">You</span>
                             <i class="fa-solid fa-user-astronaut text-xs"></i>
@@ -31,6 +31,12 @@
             {% endif %}
         {% endfor %}
         
+        <div id="regenerateContainer" class="hidden flex justify-start my-2 max-w-2xl">
+            <button type="button" onclick="resendLastPrompt()" class="flex items-center text-xs font-display tracking-widest uppercase text-gray-400 hover:text-cyber-neon transition-colors px-4 py-2 rounded-lg bg-gray-800/80 border border-gray-700 hover:border-cyber-blue shadow-sm">
+                <i class="fa-solid fa-rotate-right mr-2"></i> Resend Last Prompt
+            </button>
+        </div>
+
     </div>
 
     <div class="p-5 bg-gray-850 border-t border-gray-700">
@@ -125,7 +131,29 @@ let abortController = null;
             }
         });
         chatWindow.scrollTop = chatWindow.scrollHeight;
+        showRegenerateButton();
     };
+
+    function showRegenerateButton() {
+        const btn = document.getElementById('regenerateContainer');
+        const userMessages = document.querySelectorAll('.user-message-text');
+        if (btn && userMessages.length > 0) {
+            chatWindow.appendChild(btn); 
+            btn.classList.remove('hidden');
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+    }
+
+    function hideRegenerateButton() {
+        const btn = document.getElementById('regenerateContainer');
+        if (btn) {
+            btn.classList.add('hidden');
+        }
+    }
+
+    function resendLastPrompt() {
+        sendMessage(null, true);
+    }
 
     function stopMessage() {
         if (abortController) {
@@ -152,28 +180,44 @@ let abortController = null;
         }
     }
 
-    async function sendMessage(event) {
-        event.preventDefault();
+    async function sendMessage(event, regenerate = false) {
+        if (event) event.preventDefault();
+        hideRegenerateButton();
         
         const inputField = document.getElementById('userInput');
         const alertContextSelect = document.getElementById('alertContext');
-        const message = inputField.value.trim();
-        const selectedAlertId = alertContextSelect.value;
         const sendBtn = document.getElementById('sendBtn');
         const stopBtn = document.getElementById('stopBtn');
         
-        if (!message) return;
+        let message = inputField.value.trim();
+        let selectedAlertId = alertContextSelect.value;
 
-        inputField.value = '';
-        
-        let displayMessage = message;
-        if (selectedAlertId) {
-            const selectedText = alertContextSelect.options[alertContextSelect.selectedIndex].text.replace('Attach: ', '');
-            displayMessage = message + `\n\n*(Attached Reference: ${selectedText})*`;
-            alertContextSelect.value = "";
+        if (!regenerate) {
+            if (!message) return;
+            inputField.value = '';
+            
+            let displayMessage = message;
+            if (selectedAlertId) {
+                const selectedText = alertContextSelect.options[alertContextSelect.selectedIndex].text.replace('Attach: ', '');
+                displayMessage = message + `\n\n*(Attached Reference: ${selectedText})*`;
+                alertContextSelect.value = "";
+            }
+            
+            appendMessage('User', displayMessage);
+        } else {
+            const userMessages = document.querySelectorAll('.user-message-text');
+            if (userMessages.length === 0) return;
+            
+            message = decodeURIComponent(userMessages[userMessages.length - 1].getAttribute('data-raw-text'));
+            message = message.replace(/\n\n\*\([^)]+\)\*$/, '').trim();
+
+            const aiMessages = document.querySelectorAll('.ai-message-content');
+            if (aiMessages.length > 0) {
+                const lastAiContainer = aiMessages[aiMessages.length - 1].closest('.flex.justify-start');
+                if (lastAiContainer) lastAiContainer.remove();
+            }
         }
         
-        appendMessage('User', displayMessage);
         sendBtn.classList.add('hidden');
         stopBtn.classList.remove('hidden');
 
@@ -248,7 +292,7 @@ let abortController = null;
             const response = await fetch('{{ url_for("api_chat") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message, session_id: activeSessionId, alert_id: selectedAlertId }),
+                body: JSON.stringify({ message: message, session_id: activeSessionId, alert_id: selectedAlertId, regenerate: regenerate }),
                 signal: abortController.signal
             });
 
@@ -298,6 +342,7 @@ let abortController = null;
             clearInterval(dotsInterval);
             isStreaming = false;
             abortController = null;
+            showRegenerateButton();
         }
     }
 
@@ -308,16 +353,23 @@ let abortController = null;
         if (sender === 'User') {
             wrapper.className = 'flex justify-end';
             wrapper.innerHTML = `
-                <div class="bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg max-w-2xl shadow whitespace-pre-wrap">${text}</div>
+                <div class="bg-gradient-to-br from-cyber-blue to-blue-700 text-white p-4 rounded-2xl rounded-tr-sm max-w-2xl shadow-[0_4px_15px_rgba(14,165,233,0.3)] font-sans border border-blue-500/30 user-message-text" data-raw-text="${encodeURIComponent(text)}">
+                    <div class="flex items-center mb-1 pb-1 border-b border-blue-400/30 opacity-80 justify-end">
+                        <span class="text-[10px] uppercase tracking-widest font-display font-medium mr-2">You</span>
+                        <i class="fa-solid fa-user-astronaut text-xs"></i>
+                    </div>
+                    ${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+                </div>
             `;
         } else {
             wrapper.className = 'flex justify-start';
             wrapper.innerHTML = `
-                <div class="bg-gray-700 text-gray-200 p-4 rounded-r-lg rounded-bl-lg max-w-2xl shadow border border-gray-600">
-                    <span class="font-bold text-blue-400 text-xs uppercase block mb-2 border-b border-gray-600 pb-1">
-                        <i class="fa-solid fa-robot mr-1"></i> IntelliBlue
+                <div class="bg-gray-800 text-gray-200 p-5 rounded-2xl rounded-tl-sm max-w-2xl shadow-[0_4px_15px_rgba(0,0,0,0.4)] border border-gray-700 relative overflow-hidden group">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyber-neon to-cyber-blue opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                    <span class="font-bold text-cyber-neon text-xs uppercase tracking-widest block mb-3 border-b border-gray-700 pb-2 font-display flex items-center">
+                        <i class="fa-solid fa-robot mr-2 drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]"></i> IntelliBlue AI
                     </span>
-                    <div id="${uniqueId}" class="ai-message-content prose prose-invert prose-base max-w-none">${text}</div>
+                    <div id="${uniqueId}" class="ai-message-content prose prose-invert prose-base max-w-none font-sans leading-relaxed">${text}</div>
                 </div>
             `;
         }
