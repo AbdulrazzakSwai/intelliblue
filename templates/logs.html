@@ -5,62 +5,74 @@
 {% block content %}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     
-    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg lg:col-span-1 h-fit">
-        <h3 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2"><i class="fa-solid fa-cloud-arrow-up mr-2 text-blue-400"></i> Upload New Logs</h3>
+    <div class="bg-gray-850 rounded-xl p-8 border border-gray-700 shadow-[0_8px_30px_rgba(0,0,0,0.5)] lg:col-span-1 h-fit relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-cyber-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <h3 class="text-xl font-bold text-white mb-6 border-b border-gray-700 pb-3 font-display tracking-wide relative z-10 flex items-center">
+            <i class="fa-solid fa-cloud-arrow-up mr-3 text-cyber-blue drop-shadow-[0_0_8px_rgba(14,165,233,0.8)]"></i> Upload New Logs
+        </h3>
         
-        <form id="uploadForm" class="space-y-4">
+        <form id="uploadForm" class="space-y-6 relative z-10">
             <div>
-                <label class="block text-sm font-medium text-gray-400 mb-1">Select Security Log File (TXT, LOG, CSV, JSON, PCAP)</label>
-                <input type="file" id="logFile" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition cursor-pointer">
+                <label class="block text-sm font-bold text-gray-400 mb-2 font-display tracking-wider uppercase">Select Security Log File (TXT, LOG, CSV, JSON, PCAP)</label>
+                <input type="file" id="logFile" class="block w-full text-sm text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-bold file:font-display file:tracking-wide file:bg-gradient-to-r file:from-gray-800 file:to-gray-700 file:text-white file:cursor-pointer hover:file:from-cyber-blue hover:file:to-blue-600 file:transition-all file:shadow-[0_4px_10px_rgba(0,0,0,0.3)] hover:file:shadow-[0_0_15px_rgba(14,165,233,0.4)] bg-gray-900 rounded-lg border border-gray-700 focus:outline-none cursor-pointer">
             </div>
             
-            <button type="button" onclick="uploadLog()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition mt-4">
-                Analyze with IntelliBlue
+            <button type="button" onclick="uploadLog()" class="w-full bg-gradient-to-r from-cyber-blue to-blue-600 hover:from-cyber-neon hover:to-cyber-blue text-white font-bold py-3 px-4 rounded-lg transition-all mt-4 shadow-[0_0_15px_rgba(14,165,233,0.3)] hover:shadow-[0_0_20px_rgba(56,189,248,0.5)] font-display tracking-wider flex items-center justify-center group hover:-translate-y-0.5">
+                <i class="fa-solid fa-microchip mr-2 group-hover:scale-110 transition-transform"></i> Analyze with IntelliBlue
             </button>
         </form>
         
-        <div id="uploadStatus" class="mt-4 text-sm text-gray-300 hidden">
-            <i class="fa-solid fa-circle-notch fa-spin text-blue-400 mr-2"></i> Analyzing...
+        <div id="uploadStatus" class="mt-6 text-sm text-cyber-neon font-bold tracking-widest uppercase font-display hidden flex items-center justify-center">
+            <i class="fa-solid fa-circle-notch fa-spin text-cyber-neon mr-3 text-lg" style="--fa-animation-duration: 2s;"></i> Analyzing Data...
         </div>
     </div>
 
-    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg lg:col-span-2">
-        <div class="flex justify-between items-center border-b border-gray-700 mb-4 pb-2">
-            <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-clock-rotate-left mr-2 text-blue-400"></i> Upload History</h3>
+    <div class="bg-gray-850 rounded-xl p-8 border border-gray-700 shadow-[0_8px_30px_rgba(0,0,0,0.5)] lg:col-span-2">
+        <div class="flex justify-between items-center border-b border-gray-700 mb-6 pb-3">
+            <h3 class="text-xl font-bold text-white font-display tracking-wide flex items-center">
+                <i class="fa-solid fa-clock-rotate-left mr-3 text-cyber-blue drop-shadow-[0_0_8px_rgba(14,165,233,0.8)]"></i> Upload History
+            </h3>
             {% if logs %}
             <form action="{{ url_for('clear_logs') }}" method="POST" onsubmit="showDeleteModal(event, this, 'Are you sure you want to clear your upload history?');">
-                <button type="submit" class="text-xs text-red-500 hover:text-red-400 font-semibold transition bg-gray-900 border border-red-900 hover:border-red-700 px-3 py-1 rounded">
-                    <i class="fa-solid fa-trash-can mr-1"></i> Clear History
+                <button type="submit" class="text-xs text-red-400 hover:text-white font-bold font-display uppercase tracking-widest transition-all bg-red-900/20 border border-red-900/50 hover:bg-red-600 hover:border-red-500 hover:shadow-[0_0_10px_rgba(220,38,38,0.4)] px-4 py-2 rounded-lg flex items-center">
+                    <i class="fa-solid fa-trash-can mr-2"></i> Clear History
                 </button>
             </form>
             {% endif %}
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto rounded-lg border border-gray-700">
             <table class="w-full text-sm text-left text-gray-400">
-                <thead class="text-xs text-gray-400 uppercase bg-gray-900 rounded-t-lg">
+                <thead class="text-xs text-gray-300 uppercase bg-gray-900 rounded-t-lg font-display tracking-widest border-b border-gray-700">
                     <tr>
-                        <th class="px-4 py-3">Filename</th>
-                        <th class="px-4 py-3">File Type</th>
-                        <th class="px-4 py-3">Upload Date</th>
-                        <th class="px-4 py-3">Action</th>
+                        <th class="px-6 py-4">Filename</th>
+                        <th class="px-6 py-4">File Type</th>
+                        <th class="px-6 py-4">Upload Date</th>
+                        <th class="px-6 py-4 text-right">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for log in logs %}
-                    <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
-                        <td class="px-4 py-3 font-medium text-white">{{ log.filename }}</td>
-                        <td class="px-4 py-3"><span class="bg-gray-600 px-2 py-1 rounded text-xs font-bold">{{ log.filename.split('.') | last | upper }}</span></td>
-                        <td class="px-4 py-3">{{ log.upload_date.strftime('%Y-%m-%d %H:%M UTC') }}</td>
-                        <td class="px-4 py-3">
-                            <button onclick="checkAndViewAlert('{{ log.filename }}')" class="text-blue-400 hover:text-blue-300 font-medium transition cursor-pointer flex items-center">
-                                <i class="fa-solid fa-eye mr-1"></i> View Alert
+                    <tr class="border-b border-gray-800 hover:bg-gray-800 transition-colors">
+                        <td class="px-6 py-4 font-medium text-white flex items-center">
+                            <i class="fa-solid fa-file-code text-gray-500 mr-3"></i> {{ log.filename }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="bg-gray-900 border border-gray-700 shadow-inner px-3 py-1.5 rounded-md text-xs font-bold text-cyber-blue tracking-wider">{{ log.filename.split('.') | last | upper }}</span>
+                        </td>
+                        <td class="px-6 py-4 font-mono text-xs">{{ log.upload_date.strftime('%Y-%m-%d %H:%M UTC') }}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button onclick="checkAndViewAlert('{{ log.filename }}')" class="text-cyber-neon hover:text-white font-bold transition-all cursor-pointer inline-flex items-center justify-end px-3 py-1.5 rounded-lg hover:bg-gray-700 border border-transparent hover:border-gray-600 tracking-wide font-display text-xs uppercase">
+                                <i class="fa-solid fa-eye mr-2"></i> View Alert
                             </button>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="4" class="px-4 py-8 text-center text-gray-500">No logs have been uploaded yet.</td>
+                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                            <i class="fa-solid fa-folder-open text-4xl mb-3 opacity-20"></i>
+                            <p class="font-display tracking-wide">No logs have been uploaded yet.</p>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

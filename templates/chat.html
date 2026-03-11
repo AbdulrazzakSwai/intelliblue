@@ -3,23 +3,29 @@
 {% block title %}IntelliBlue Chat Assistant{% endblock %}
 
 {% block content %}
-<div class="flex flex-col h-full bg-gray-800 rounded-lg shadow-lg border border-gray-700">
+<div class="flex flex-col h-full bg-gray-900/50 backdrop-blur-md rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.6)] border border-gray-700 overflow-hidden">
     
-    <div id="chatWindow" class="flex-1 p-6 overflow-y-auto space-y-4">
+    <div id="chatWindow" class="flex-1 p-6 overflow-y-auto space-y-6">
         
         {% for msg in history %}
             {% if msg.sender == 'User' %}
                 <div class="flex justify-end">
-                    <div class="bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg max-w-2xl shadow">{{ msg.text }}
+                    <div class="bg-gradient-to-br from-cyber-blue to-blue-700 text-white p-4 rounded-2xl rounded-tr-sm max-w-2xl shadow-[0_4px_15px_rgba(14,165,233,0.3)] font-sans border border-blue-500/30">
+                        <div class="flex items-center mb-1 pb-1 border-b border-blue-400/30 opacity-80 justify-end">
+                            <span class="text-[10px] uppercase tracking-widest font-display font-medium mr-2">You</span>
+                            <i class="fa-solid fa-user-astronaut text-xs"></i>
+                        </div>
+                        {{ msg.text }}
                     </div>
                 </div>
             {% else %}
                 <div class="flex justify-start {% if loop.first and history|length == 1 %}animate-fade-in{% endif %}">
-                    <div class="bg-gray-700 text-gray-200 p-4 rounded-r-lg rounded-bl-lg max-w-2xl shadow border border-gray-600">
-                        <span class="font-bold text-blue-400 text-xs uppercase block mb-2 border-b border-gray-600 pb-1">
-                            <i class="fa-solid fa-robot mr-1"></i> IntelliBlue
+                    <div class="bg-gray-800 text-gray-200 p-5 rounded-2xl rounded-tl-sm max-w-2xl shadow-[0_4px_15px_rgba(0,0,0,0.4)] border border-gray-700 relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyber-neon to-cyber-blue opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                        <span class="font-bold text-cyber-neon text-xs uppercase tracking-widest block mb-3 border-b border-gray-700 pb-2 font-display flex items-center">
+                            <i class="fa-solid fa-robot mr-2 drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]"></i> IntelliBlue AI
                         </span>
-                        <div {% if loop.first and history|length == 1 %}data-welcome="true"{% endif %} class="ai-message-content prose prose-invert prose-base max-w-none">{{ msg.text }}</div>
+                        <div {% if loop.first and history|length == 1 %}data-welcome="true"{% endif %} class="ai-message-content prose prose-invert prose-base max-w-none text-gray-300 font-sans leading-relaxed">{{ msg.text }}</div>
                     </div>
                 </div>
             {% endif %}
@@ -27,24 +33,27 @@
         
     </div>
 
-    <div class="p-4 bg-gray-900 border-t border-gray-700 rounded-b-lg space-y-3">
+    <div class="p-5 bg-gray-850 border-t border-gray-700">
         <form id="chatForm" class="flex space-x-4" onsubmit="sendMessage(event)">
-            <div class="flex-1 flex bg-gray-800 border border-gray-600 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition">
-                <select id="alertContext" class="bg-gray-700 text-gray-300 border-r border-gray-600 px-3 py-3 focus:outline-none max-w-[200px] truncate text-sm hover:bg-gray-600 cursor-pointer">
-                    <option value="">No Alert Attached</option>
+            <div class="flex-1 flex bg-gray-900 border border-gray-600 rounded-lg overflow-hidden focus-within:border-cyber-blue focus-within:shadow-[0_0_10px_rgba(14,165,233,0.3)] transition-all duration-300">
+                <div class="bg-gray-800 border-r border-gray-700 flex items-center px-3 group">
+                    <i class="fa-solid fa-paperclip text-gray-400 group-hover:text-cyber-neon transition-colors"></i>
+                </div>
+                <select id="alertContext" class="bg-gray-800 text-gray-300 border-r border-gray-700 px-3 py-4 focus:outline-none max-w-[220px] truncate text-sm hover:bg-gray-700 cursor-pointer font-display tracking-wide font-medium appearance-none">
+                    <option value="">No context attached</option>
                     {% for alert in global_alerts %}
-                        <option value="{{ alert.id }}">Attach: {{ alert.title }}</option>
+                        <option value="{{ alert.id }}">🔗 {{ alert.title }}</option>
                     {% endfor %}
                 </select>
-                <input type="text" id="userInput" autocomplete="off" placeholder="Ask about an alert, request mitigation steps..." 
-                       class="flex-1 bg-transparent text-white placeholder-gray-500 px-4 py-3 focus:outline-none">
+                <input type="text" id="userInput" autocomplete="off" placeholder="Ask IntelliBlue about threats, logs, or mitigations..." 
+                       class="flex-1 bg-transparent text-white placeholder-gray-500 px-5 py-4 focus:outline-none font-sans">
             </div>
             
-            <button type="button" id="stopBtn" class="hidden bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-lg font-semibold transition shadow-lg flex items-center" onclick="stopMessage()">
-                <span>Stop</span> <i class="fa-solid fa-stop ml-2"></i>
+            <button type="button" id="stopBtn" class="hidden bg-red-600 hover:bg-red-500 text-white px-6 py-4 rounded-lg font-bold transition-all shadow-[0_0_15px_rgba(220,38,38,0.4)] flex items-center font-display tracking-wider hover:scale-105" onclick="stopMessage()">
+                <span>STOP</span> <i class="fa-solid fa-power-off ml-2"></i>
             </button>
-            <button type="submit" id="sendBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-semibold transition shadow-lg flex items-center">
-                <span>Send</span> <i class="fa-solid fa-paper-plane ml-2"></i>
+            <button type="submit" id="sendBtn" class="bg-gradient-to-r from-cyber-blue to-blue-600 hover:from-cyber-neon hover:to-cyber-blue text-white px-8 py-4 rounded-lg font-bold transition-all shadow-[0_0_15px_rgba(14,165,233,0.4)] hover:shadow-[0_0_20px_rgba(56,189,248,0.6)] flex items-center font-display tracking-wider group hover:scale-105">
+                <span>SEND</span> <i class="fa-solid fa-paper-plane ml-3 group-hover:translate-x-1 transition-transform"></i>
             </button>
         </form>
     </div>
