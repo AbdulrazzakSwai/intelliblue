@@ -71,6 +71,16 @@ def clear_logs():
     db.session.commit()
     return redirect(url_for('logs'))
 
+@app.route('/api/check_alert/<path:filename>')
+def check_alert(filename):
+    alert = Alert.query.filter_by(title=f"Analysis of {filename}").first()
+    if alert:
+        if alert.status == 'Active':
+            return jsonify({"status": "active"})
+        else:
+            return jsonify({"status": "archived"})
+    return jsonify({"status": "deleted"})
+
 @app.route('/alerts')
 def alerts():
     active_alerts = Alert.query.filter_by(status="Active").order_by(Alert.date_created.desc()).all()
@@ -138,10 +148,20 @@ def chat_redirect():
 
 @app.route('/chat/new')
 def new_chat():
-    session_id = str(uuid.uuid4())
-    new_session = ChatSession(id=session_id, title="New Chat")
-    db.session.add(new_session)
-    db.session.commit()
+    # Check if there is already an empty session to prevent spamming empty chats
+    empty_session = None
+    for session in ChatSession.query.order_by(ChatSession.date_created.desc()).all():
+        if ChatMessage.query.filter_by(session_id=session.id).count() == 0:
+            empty_session = session
+            break
+            
+    if empty_session:
+        session_id = empty_session.id
+    else:
+        session_id = str(uuid.uuid4())
+        new_session = ChatSession(id=session_id, title="New Chat")
+        db.session.add(new_session)
+        db.session.commit()
     
     # Optional URL argument to immediately attach an alert constraint to default chat window
     alert_id = request.args.get('alert_id')
@@ -369,9 +389,14 @@ def parse_security_file(filepath):
                     break
                 parsed_text += f"Packet {i+1}: {pkt.summary()}\n"
 
+        elif ext == '.log':
+            source_type = "SYSTEM EVENT LOGS"
+            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                parsed_text = f.read(5000)
+
         else:
             source_type = "RAW TEXT LOGS"
-            with open(filepath, 'r', encoding='utf-8') as f:
+            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
                 parsed_text = f.read(5000)
 
         return source_type, parsed_text
@@ -390,16 +415,12 @@ def api_upload():
         return jsonify({"error": "No file selected"}), 400
 
     original_filename = secure_filename(file.filename)
-    filename = original_filename
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    
-    # Handle duplicate filenames
-    counter = 1
     name, ext = os.path.splitext(original_filename)
-    while os.path.exists(filepath):
-        counter += 1
-        filename = f"{name}_{counter}{ext}"
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    
+    # Generate a robust unique identifier to prevent any naming collisions
+    unique_id = uuid.uuid4().hex[:8]
+    filename = f"{name}_{unique_id}{ext}"
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
     file.save(filepath)
 
@@ -463,10 +484,23 @@ Include these exact headings:
         )
         db.session.add(new_alert)
         db.session.commit()
+        
+        # Clean up the physical file from the server now that analysis is complete
+        try:
+            if os.path.exists(filepath):
+                os.remove(filepath)
+        except Exception as delete_error:
+            print(f"Warning: Failed to delete physical log file {filepath}: {delete_error}")
 
         return jsonify({"message": "Analysis complete", "alert_id": new_alert.id, "filename": filename}), 200
 
     except Exception as e:
+        # Guarantee cleanup even if Ollama request completely crashes
+        try:
+            if os.path.exists(filepath):
+                os.remove(filepath)
+        except:
+            pass
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':

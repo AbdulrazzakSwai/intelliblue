@@ -10,7 +10,7 @@
         
         <form id="uploadForm" class="space-y-4">
             <div>
-                <label class="block text-sm font-medium text-gray-400 mb-1">Select Security Log File (TXT, CSV, JSON, PCAP)</label>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Select Security Log File (TXT, LOG, CSV, JSON, PCAP)</label>
                 <input type="file" id="logFile" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition cursor-pointer">
             </div>
             
@@ -41,7 +41,7 @@
                 <thead class="text-xs text-gray-400 uppercase bg-gray-900 rounded-t-lg">
                     <tr>
                         <th class="px-4 py-3">Filename</th>
-                        <th class="px-4 py-3">Source Type</th>
+                        <th class="px-4 py-3">File Type</th>
                         <th class="px-4 py-3">Upload Date</th>
                         <th class="px-4 py-3">Action</th>
                     </tr>
@@ -53,9 +53,9 @@
                         <td class="px-4 py-3"><span class="bg-gray-600 px-2 py-1 rounded text-xs font-bold">{{ log.filename.split('.') | last | upper }}</span></td>
                         <td class="px-4 py-3">{{ log.upload_date.strftime('%Y-%m-%d %H:%M UTC') }}</td>
                         <td class="px-4 py-3">
-                            <a href="{{ url_for('alerts') }}#alert-{{ log.filename }}" class="text-blue-400 hover:text-blue-300 font-medium transition cursor-pointer">
+                            <button onclick="checkAndViewAlert('{{ log.filename }}')" class="text-blue-400 hover:text-blue-300 font-medium transition cursor-pointer flex items-center">
                                 <i class="fa-solid fa-eye mr-1"></i> View Alert
-                            </a>
+                            </button>
                         </td>
                     </tr>
                     {% else %}
@@ -66,6 +66,20 @@
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<!-- Alert Not Found Modal -->
+<div id="notFoundModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 hidden opacity-0 transition-opacity duration-300">
+    <div id="notFoundModalContent" class="bg-gray-800 rounded-lg shadow-2xl p-8 border border-yellow-500 transform scale-95 transition-transform duration-300 max-w-sm w-full text-center">
+        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-yellow-900 border-2 border-yellow-400 mb-4 shadow-[0_0_15px_rgba(234,179,8,0.5)]">
+            <i class="fa-solid fa-triangle-exclamation text-3xl text-yellow-400 animate-pulse"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-2">Alert Unavailable</h3>
+        <p class="text-gray-400 mb-6 text-sm">Sorry, this specific alert has either been deleted or archived to Reports.</p>
+        <button onclick="closeNotFoundModal()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg transition shadow-lg">
+            Dismiss
+        </button>
     </div>
 </div>
 
@@ -90,6 +104,42 @@
 </div>
 
 <script>
+    async function checkAndViewAlert(filename) {
+        try {
+            const response = await fetch(`/api/check_alert/${encodeURIComponent(filename)}`);
+            const data = await response.json();
+            
+            if (data.status === 'active') {
+                window.location.href = "{{ url_for('alerts') }}#alert-" + filename;
+            } else {
+                showNotFoundModal();
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error checking alert status.");
+        }
+    }
+
+    function showNotFoundModal() {
+        const modal = document.getElementById('notFoundModal');
+        const modalContent = document.getElementById('notFoundModalContent');
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }, 10);
+    }
+    
+    function closeNotFoundModal() {
+        const modal = document.getElementById('notFoundModal');
+        const modalContent = document.getElementById('notFoundModalContent');
+        modal.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
     function closeModalAndReload() {
         // Fade out and reload
         const modal = document.getElementById('successModal');
