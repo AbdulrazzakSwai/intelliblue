@@ -46,10 +46,15 @@
         </div>
 
         <div class="bg-gray-900 px-6 py-3 border-t border-gray-700 flex justify-end space-x-4">
-            <button onclick="resolveAlert('{{ alert.id }}')" class="text-sm text-green-400 hover:text-green-300 font-semibold transition">
-                <i class="fa-solid fa-check mr-1"></i> Mark as Resolved
-            </button>
-            <button class="text-sm text-blue-400 hover:text-blue-300 font-semibold transition">
+            <a href="{{ url_for('new_chat') }}?alert_id={{ alert.id }}" class="text-sm text-purple-400 hover:text-purple-300 font-semibold transition flex items-center">
+                <i class="fa-solid fa-robot mr-1"></i> Investigate with AI
+            </a>
+            <form action="{{ url_for('resolve_alert', alert_id=alert.id) }}" method="POST" class="inline">
+                <button type="submit" class="text-sm text-green-400 hover:text-green-300 font-semibold transition flex items-center">
+                    <i class="fa-solid fa-check mr-1"></i> Mark as Resolved
+                </button>
+            </form>
+            <button class="text-sm text-blue-400 hover:text-blue-300 font-semibold transition flex items-center">
                 <i class="fa-solid fa-download mr-1"></i> Export Report
             </button>
         </div>
@@ -73,10 +78,5 @@
             div.innerHTML = marked.parse(rawText);
         });
     };
-
-    // 2. Placeholder function for resolving alerts
-    function resolveAlert(alertId) {
-        alert("Feature coming soon: This will mark alert ID " + alertId + " as resolved in the database.");
-    }
 </script>
 {% endblock %}

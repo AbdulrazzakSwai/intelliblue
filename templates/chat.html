@@ -27,10 +27,19 @@
         
     </div>
 
-    <div class="p-4 bg-gray-900 border-t border-gray-700 rounded-b-lg">
+    <div class="p-4 bg-gray-900 border-t border-gray-700 rounded-b-lg space-y-3">
         <form id="chatForm" class="flex space-x-4" onsubmit="sendMessage(event)">
-            <input type="text" id="userInput" autocomplete="off" placeholder="Ask about an alert, request mitigation steps..." 
-                   class="flex-1 bg-gray-800 text-white placeholder-gray-500 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+            <div class="flex-1 flex bg-gray-800 border border-gray-600 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 transition">
+                <select id="alertContext" class="bg-gray-700 text-gray-300 border-r border-gray-600 px-3 py-3 focus:outline-none max-w-[200px] truncate text-sm hover:bg-gray-600 cursor-pointer">
+                    <option value="">No Alert Attached</option>
+                    {% for alert in global_alerts %}
+                        <option value="{{ alert.id }}">Attach: {{ alert.title }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" id="userInput" autocomplete="off" placeholder="Ask about an alert, request mitigation steps..." 
+                       class="flex-1 bg-transparent text-white placeholder-gray-500 px-4 py-3 focus:outline-none">
+            </div>
+            
             <button type="button" id="stopBtn" class="hidden bg-red-600 hover:bg-red-500 text-white px-6 py-3 rounded-lg font-semibold transition shadow-lg flex items-center" onclick="stopMessage()">
                 <span>Stop</span> <i class="fa-solid fa-stop ml-2"></i>
             </button>
@@ -62,18 +71,21 @@ let abortController = null;
                 // Block user input while typing
                 const userInputField = document.getElementById('userInput');
                 const userSendBtn = document.getElementById('sendBtn');
+                const alertContextSelect = document.getElementById('alertContext');
                 userInputField.disabled = true;
                 userSendBtn.disabled = true;
+                alertContextSelect.disabled = true;
                 userInputField.placeholder = "IntelliBlue is typing...";
                 userInputField.classList.add('opacity-50', 'cursor-not-allowed');
                 userSendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                alertContextSelect.classList.add('opacity-50', 'cursor-not-allowed');
 
                 // Keep UI smooth by revealing characters
                 let renderedWelcome = "";
                 let charIndex = 0;
                 
                 const welcomeInterval = setInterval(() => {
-                    const charsToReveal = 2; // Reveal one char per tick 
+                    const charsToReveal = 2;
                     if (charIndex < targetText.length) {
                         renderedWelcome += targetText.substring(charIndex, charIndex + charsToReveal);
                         let html = marked.parse(renderedWelcome);
@@ -89,9 +101,24 @@ let abortController = null;
                         // Restore user input
                         userInputField.disabled = false;
                         userSendBtn.disabled = false;
+                        alertContextSelect.disabled = false;
                         userInputField.placeholder = "Ask about an alert, request mitigation steps...";
                         userInputField.classList.remove('opacity-50', 'cursor-not-allowed');
                         userSendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        alertContextSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+                        
+                        // Auto-populate the input query if an alert ID was seamlessly passed via URL param
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const autoAlertId = urlParams.get('auto_alert');
+                        if (autoAlertId) {
+                            // Find if it exists in the select dropdown options
+                            let selectHasOption = Array.from(alertContextSelect.options).some(option => option.value === autoAlertId);
+                            if (selectHasOption) {
+                                alertContextSelect.value = autoAlertId;
+                                userInputField.value = "I need help investigating this specific alert. What should my first step be?";
+                            }
+                        }
+                        
                         userInputField.focus();
                     }
                 }, 10); // Faster visual tick interval
@@ -130,7 +157,9 @@ let abortController = null;
         event.preventDefault();
         
         const inputField = document.getElementById('userInput');
+        const alertContextSelect = document.getElementById('alertContext');
         const message = inputField.value.trim();
+        const selectedAlertId = alertContextSelect.value;
         const sendBtn = document.getElementById('sendBtn');
         const stopBtn = document.getElementById('stopBtn');
         
@@ -138,7 +167,16 @@ let abortController = null;
 
         // Append User message
         inputField.value = '';
-        appendMessage('User', message);
+        
+        // Show attached alert in UI if one was selected
+        let displayMessage = message;
+        if (selectedAlertId) {
+            const selectedText = alertContextSelect.options[alertContextSelect.selectedIndex].text.replace('Attach: ', '');
+            displayMessage = message + `\n\n*(Attached Reference: ${selectedText})*`;
+            alertContextSelect.value = ""; // Reset dropdown after sending
+        }
+        
+        appendMessage('User', displayMessage);
         sendBtn.classList.add('hidden');
         stopBtn.classList.remove('hidden');
 
@@ -222,7 +260,7 @@ let abortController = null;
             const response = await fetch('{{ url_for("api_chat") }}', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message, session_id: activeSessionId }),
+                body: JSON.stringify({ message: message, session_id: activeSessionId, alert_id: selectedAlertId }),
                 signal: abortController.signal
             });
 
@@ -239,9 +277,15 @@ let abortController = null;
             if (error.name !== 'AbortError') {
                 clearInterval(dotsInterval);
                 aiBubbleElement.innerText = "Error connecting to the backend.";
+                sendBtn.classList.remove('hidden');
+                stopBtn.classList.add('hidden');
             } else {
                 // User interrupted the fetch
                 rawMarkdown += "\n\n*(user interruption)*";
+                
+                // Instantly flip the button state since we won't receive the END_STREAM tag naturally
+                sendBtn.classList.remove('hidden');
+                stopBtn.classList.add('hidden');
                 
                 // If the stream interrupted before the backend sent the TITLE tag, we construct the fallback title directly on the frontend.
                 const currentSessionLink = document.getElementById('sidebar-session-' + activeSessionId);

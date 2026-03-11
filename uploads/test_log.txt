@@ -1,6 +1,0 @@
-[2026-03-11 10:15:01] FAILED LOGIN - User: admin - IP: 192.168.1.100
-[2026-03-11 10:15:02] FAILED LOGIN - User: admin - IP: 192.168.1.100
-[2026-03-11 10:15:03] FAILED LOGIN - User: admin - IP: 192.168.1.100
-[2026-03-11 10:15:04] FAILED LOGIN - User: admin - IP: 192.168.1.100
-[2026-03-11 10:15:05] SUCCESSFUL LOGIN - User: admin - IP: 192.168.1.100
-[2026-03-11 10:16:00] CRITICAL: Large outbound data transfer initiated to 10.0.0.50

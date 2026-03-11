@@ -32,7 +32,7 @@
                             {{ report.severity }}
                         </span>
                     </td>
-                    <td class="px-6 py-4">{{ report.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="px-6 py-4">{{ report.date_created.strftime('%Y-%m-%d %H:%M UTC') }}</td>
                     <td class="px-6 py-4 text-right space-x-3">
                         <button onclick="viewReport('{{ report.id }}')" class="text-blue-400 hover:text-blue-300 font-semibold transition">
                             <i class="fa-solid fa-eye mr-1"></i> View
@@ -40,7 +40,7 @@
                         <button onclick="window.print()" class="text-green-400 hover:text-green-300 font-semibold transition">
                             <i class="fa-solid fa-download mr-1"></i> Download PDF
                         </button>
-                        <form action="{{ url_for('delete_report', report_id=report.id) }}" method="POST" class="inline" onsubmit="showDeleteModal(event, this, 'WARNING: Are you sure you want to permanently delete this generated report?');">
+                        <form action="{{ url_for('delete_report', report_id=report.id) }}" method="POST" class="inline" onsubmit="showDeleteModal(event, this, 'Are you sure you want to permanently delete this generated report?');">
                             <button type="submit" class="text-red-500 hover:text-red-400 font-semibold transition">
                                 <i class="fa-solid fa-trash-can mr-1"></i> Delete
                             </button>

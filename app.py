@@ -27,7 +27,8 @@ OLLAMA_URL = "http://localhost:11434/api/generate"
 @app.context_processor
 def inject_global_data():
     return dict(
-        global_chat_sessions=ChatSession.query.order_by(ChatSession.date_created.desc()).all()
+        global_chat_sessions=ChatSession.query.order_by(ChatSession.date_created.desc()).all(),
+        global_alerts=Alert.query.order_by(Alert.date_created.desc()).all()
     )
 
 # Create the database tables before the first request
@@ -47,15 +48,39 @@ def logs():
     all_logs = LogFile.query.order_by(LogFile.upload_date.desc()).all()
     return render_template('logs.html', logs=all_logs)
 
+@app.route('/logs/clear', methods=['POST'])
+def clear_logs():
+    # 1. Delete physical files from the uploads folder
+    folder = app.config['UPLOAD_FOLDER']
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(f"Failed to delete {file_path}: {e}")
+            
+    # 2. Delete all log records from the database
+    LogFile.query.delete()
+    db.session.commit()
+    return redirect(url_for('logs'))
+
 @app.route('/alerts')
 def alerts():
-    all_alerts = Alert.query.order_by(Alert.date_created.desc()).all()
-    return render_template('alerts.html', alerts=all_alerts)
+    active_alerts = Alert.query.filter_by(status="Active").order_by(Alert.date_created.desc()).all()
+    return render_template('alerts.html', alerts=active_alerts)
 
 @app.route('/reports')
 def reports():
-    all_reports = Alert.query.order_by(Alert.date_created.desc()).all()
-    return render_template('reports.html', reports=all_reports)
+    archived_reports = Alert.query.filter_by(status="Resolved").order_by(Alert.date_created.desc()).all()
+    return render_template('reports.html', reports=archived_reports)
+
+@app.route('/alert/<int:alert_id>/resolve', methods=['POST'])
+def resolve_alert(alert_id):
+    alert_to_resolve = Alert.query.get_or_404(alert_id)
+    alert_to_resolve.status = "Resolved"
+    db.session.commit()
+    return redirect(url_for('alerts'))
 
 @app.route('/chat')
 def chat_redirect():
@@ -72,6 +97,12 @@ def new_chat():
     new_session = ChatSession(id=session_id, title="New Chat")
     db.session.add(new_session)
     db.session.commit()
+    
+    # Optional URL argument to immediately attach an alert constraint to default chat window
+    alert_id = request.args.get('alert_id')
+    if alert_id:
+        return redirect(url_for('chat', session_id=session_id, auto_alert=alert_id))
+        
     return redirect(url_for('chat', session_id=session_id))
 
 @app.route('/chat/<session_id>')
@@ -113,9 +144,17 @@ def delete_report(report_id):
 def api_chat():
     user_message = request.json.get('message')
     session_id = request.json.get('session_id', 'default')
+    alert_id = request.json.get('alert_id')
     
     if not user_message:
         return jsonify({"error": "No message provided"}), 400
+
+    # Expand the user message with the attached alert's full context if one was provided
+    final_user_message = user_message
+    if alert_id:
+        alert = Alert.query.get(alert_id)
+        if alert:
+            final_user_message += f"\n\n*(Attached Reference: {alert.title})*\n\n> **Severity Level**: {alert.severity}\n> \n> {alert.description}"
 
     # (We wait to rename the session until after the AI responds)
     session = ChatSession.query.get(session_id)
@@ -125,7 +164,7 @@ def api_chat():
         db.session.commit()
 
     # 1. Save the User's message to the database immediately
-    user_msg_record = ChatMessage(sender="User", text=user_message, session_id=session_id)
+    user_msg_record = ChatMessage(sender="User", text=final_user_message, session_id=session_id)
     db.session.add(user_msg_record)
     db.session.commit()
 
