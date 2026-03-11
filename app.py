@@ -391,10 +391,6 @@ def api_upload():
     if source_type == "ERROR":
         return jsonify({"error": log_content}), 500
 
-    new_log = LogFile(filename=filename, source_type=source_type)
-    db.session.add(new_log)
-    db.session.commit()
-
     system_prompt = f"""You are IntelliBlue, an expert SOC AI. 
 Analyze the following {source_type}. 
 Identify any security threats, anomalies, or malicious activities.
@@ -446,6 +442,10 @@ Include these exact headings:
             status="Active"
         )
         db.session.add(new_alert)
+
+        new_log = LogFile(filename=filename, source_type=source_type)
+        db.session.add(new_log)
+
         db.session.commit()
         
         try:
