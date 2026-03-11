@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}SOC Dashboard Overview{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Total Logs Ingested</p>
+                <p class="text-3xl font-bold text-white mt-2">{{ total_logs }}</p>
+            </div>
+            <div class="p-3 bg-blue-900 bg-opacity-30 rounded-full">
+                <i class="fa-solid fa-file-lines text-blue-500 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-400 uppercase tracking-wider">Active Alerts</p>
+                <p class="text-3xl font-bold text-red-400 mt-2">{{ active_alerts }}</p>
+            </div>
+            <div class="p-3 bg-red-900 bg-opacity-30 rounded-full">
+                <i class="fa-solid fa-triangle-exclamation text-red-500 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-400 uppercase tracking-wider">AI Engine</p>
+                <p class="text-xl font-bold text-green-400 mt-2">Llama 3 (Online)</p>
+            </div>
+            <div class="p-3 bg-green-900 bg-opacity-30 rounded-full">
+                <i class="fa-solid fa-microchip text-green-500 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-gray-800 rounded-lg p-8 border border-gray-700 shadow-lg">
+    <h3 class="text-2xl font-bold text-white mb-4">Welcome to IntelliBlue</h3>
+    <p class="text-gray-300 mb-4">
+        Your AI-assisted Security Operations Center platform is active. Navigate to the <strong>Log Management</strong> section to upload SIEM, EDR, or Firewall logs for AI analysis, or use the <strong>IntelliBlue Chat</strong> to ask contextual questions about active threats.
+    </p>
+</div>
+{% endblock %}

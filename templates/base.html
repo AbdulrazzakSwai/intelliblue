@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IntelliBlue SOC</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Custom scrollbar to match the dark theme */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+
+        /* Custom styling for inline AI commands (Markdown backticks) */
+        .prose code {
+            color: #ef4444 !important; /* Tailwind Red-500 */
+            font-family: 'Courier New', Courier, monospace !important;
+            background-color: #111827 !important; 
+            padding: 0.2rem 0.4rem !important;
+            border-radius: 0.25rem !important;
+            font-weight: 500 !important; /* Reduced from 600 to 500 for a cleaner look */
+        }
+
+        /* Removes the default pseudo-backticks Tailwind tries to add */
+        .prose code::before, .prose code::after {
+            content: none !important;
+        }
+
+        /* Prevents massive multi-line script blocks from turning entirely red */
+        .prose pre code {
+            color: #e5e7eb !important;
+            background-color: transparent !important;
+            padding: 0 !important;
+            font-weight: normal !important;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+        
+        <div class="h-16 flex items-center px-6 border-b border-gray-700">
+            <i class="fa-solid fa-shield-halved text-blue-500 text-2xl mr-3"></i>
+            <span class="text-xl font-bold tracking-wider text-white">IntelliBlue</span>
+        </div>
+        
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="{{ url_for('dashboard') }}" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors">
+                <i class="fa-solid fa-chart-line w-6"></i> Dashboard
+            </a>
+            <a href="{{ url_for('logs') }}" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors">
+                <i class="fa-solid fa-file-lines w-6"></i> Log Management
+            </a>
+            <a href="{{ url_for('alerts') }}" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors">
+                <i class="fa-solid fa-triangle-exclamation w-6 text-yellow-500"></i> Active Alerts
+            </a>
+            <a href="{{ url_for('reports') }}" class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors">
+                <i class="fa-solid fa-clipboard-check w-6"></i> Incident Reports
+            </a>
+            
+            <div class="pt-6 pb-2">
+                <p class="text-xs uppercase text-gray-500 font-bold px-4">AI Assistant</p>
+            </div>
+            
+            <a href="{{ url_for('chat') }}" class="flex items-center px-4 py-3 text-blue-400 bg-blue-900 bg-opacity-20 hover:bg-blue-600 hover:text-white rounded-lg transition-colors border border-blue-800">
+                <i class="fa-solid fa-robot w-6"></i> IntelliBlue Chat
+            </a>
+        </nav>
+        
+        <div class="p-4 border-t border-gray-700 text-xs text-gray-500 text-center">
+            SOC Analyst Profile<br>
+            System Status: <span class="text-green-500 font-semibold"><i class="fa-solid fa-circle text-[8px] mr-1"></i>Online</span>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <header class="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-8">
+            <h2 class="text-xl font-semibold text-gray-100">
+                {% block title %}Dashboard{% endblock %}
+            </h2>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm text-gray-400"><i class="fa-solid fa-network-wired mr-2"></i>Local LLM Active</span>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 bg-gray-900">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Incident Reports Archive{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <h3 class="text-xl font-bold text-white"><i class="fa-solid fa-folder-open text-blue-500 mr-2"></i> Archived Reports</h3>
+    <button class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm transition shadow">
+        <i class="fa-solid fa-magnifying-glass mr-2"></i>Search Archive
+    </button>
+</div>
+
+<div class="bg-gray-800 rounded-lg border border-gray-700 shadow-lg overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-400">
+            <thead class="text-xs text-gray-400 uppercase bg-gray-900 border-b border-gray-700">
+                <tr>
+                    <th class="px-6 py-4">Report ID / Title</th>
+                    <th class="px-6 py-4">Severity</th>
+                    <th class="px-6 py-4">Date Generated</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
+                    <td class="px-6 py-4 font-medium text-white">
+                        <i class="fa-solid fa-file-pdf text-red-400 mr-2"></i> {{ report.title }}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="bg-red-900 text-red-300 text-xs font-bold px-2 py-1 rounded border border-red-700">
+                            {{ report.severity }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">{{ report.date_created.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td class="px-6 py-4 text-right space-x-3">
+                        <button onclick="viewReport('{{ report.id }}')" class="text-blue-400 hover:text-blue-300 font-semibold transition">
+                            <i class="fa-solid fa-eye mr-1"></i> View
+                        </button>
+                        <button onclick="window.print()" class="text-green-400 hover:text-green-300 font-semibold transition">
+                            <i class="fa-solid fa-download mr-1"></i> Download PDF
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="px-6 py-8 text-center text-gray-500">
+                        <i class="fa-solid fa-folder-blank text-3xl mb-2 block"></i>
+                        No incident reports have been archived yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    @media print {
+        aside, header, button { display: none !important; }
+        body { background-color: white !important; color: black !important; }
+        .bg-gray-800, .bg-gray-900 { background-color: white !important; border: none !important; color: black !important;}
+        .text-white, .text-gray-400 { color: black !important; }
+    }
+</style>
+
+<script>
+    function viewReport(reportId) {
+        alert("In a full enterprise environment, this would open the detailed view for Report ID: " + reportId);
+    }
+</script>
+{% endblock %}

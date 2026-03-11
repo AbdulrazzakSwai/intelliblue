@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Log Management & Ingestion{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg lg:col-span-1 h-fit">
+        <h3 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2"><i class="fa-solid fa-cloud-arrow-up mr-2 text-blue-400"></i> Upload New Logs</h3>
+        
+        <form id="uploadForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-1">Select Security Log File (TXT, CSV, JSON, PCAP)</label>
+                <input type="file" id="logFile" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 transition cursor-pointer">
+            </div>
+            
+            <button type="button" onclick="uploadLog()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition mt-4">
+                Analyze with IntelliBlue
+            </button>
+        </form>
+        
+        <div id="uploadStatus" class="mt-4 text-sm text-gray-300 hidden">
+            <i class="fa-solid fa-circle-notch fa-spin text-blue-400 mr-2"></i> Analyzing...
+        </div>
+    </div>
+
+    <div class="bg-gray-800 rounded-lg p-6 border border-gray-700 shadow-lg lg:col-span-2">
+        <h3 class="text-lg font-bold text-white mb-4 border-b border-gray-700 pb-2"><i class="fa-solid fa-clock-rotate-left mr-2 text-blue-400"></i> Upload History</h3>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-400">
+                <thead class="text-xs text-gray-400 uppercase bg-gray-900 rounded-t-lg">
+                    <tr>
+                        <th class="px-4 py-3">Filename</th>
+                        <th class="px-4 py-3">Source Type</th>
+                        <th class="px-4 py-3">Upload Date</th>
+                        <th class="px-4 py-3">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr class="border-b border-gray-700 hover:bg-gray-700 transition">
+                        <td class="px-4 py-3 font-medium text-white">{{ log.filename }}</td>
+                        <td class="px-4 py-3"><span class="bg-gray-600 px-2 py-1 rounded text-xs">{{ log.source_type }}</span></td>
+                        <td class="px-4 py-3">{{ log.upload_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td class="px-4 py-3">
+                            <button class="text-blue-400 hover:text-blue-300"><i class="fa-solid fa-eye"></i> View</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="px-4 py-8 text-center text-gray-500">No logs have been uploaded yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function uploadLog() {
+        const fileInput = document.getElementById('logFile');
+        const statusDiv = document.getElementById('uploadStatus');
+        
+        if (fileInput.files.length === 0) {
+            alert("Please select a file to upload.");
+            return;
+        }
+
+        statusDiv.classList.remove('hidden');
+        
+        const formData = new FormData();
+        formData.append("file", fileInput.files[0]);
+        // The source_type append has been removed
+
+        try {
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                alert("Analysis Complete! Check the Alerts page.");
+                window.location.reload(); 
+            } else {
+                alert("Error: " + data.error);
+            }
+        } catch (error) {
+            alert("Failed to connect to backend.");
+        } finally {
+            statusDiv.classList.add('hidden');
+        }
+    }
+</script>
+{% endblock %}

