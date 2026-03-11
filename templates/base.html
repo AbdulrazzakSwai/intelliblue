@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IntelliBlue SOC</title>
     
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon/favicon-16x16.png') }}">
+    
+    <link rel="preload" as="image" href="{{ url_for('static', filename='intelliblue_logo.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
@@ -80,7 +85,7 @@
     <aside class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
         
         <div class="h-16 flex items-center px-6 border-b border-gray-700 bg-gray-900">
-            <i class="fa-solid fa-shield-virus text-cyber-neon text-2xl mr-3 drop-shadow-md"></i>
+            <img src="{{ url_for('static', filename='intelliblue_logo.png') }}" alt="IntelliBlue Logo" class="h-14 w-auto mr-0 drop-shadow-md pb-1">
             <span class="text-xl font-bold tracking-wider text-white font-display uppercase shadow-cyber-blue drop-shadow-lg">IntelliBlue</span>
         </div>
         

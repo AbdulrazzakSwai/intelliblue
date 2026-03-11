@@ -15,7 +15,7 @@ from fpdf import FPDF, HTMLMixin
 class PDF(FPDF, HTMLMixin):
     pass
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='assets', static_url_path='/static')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///intelliblue.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
