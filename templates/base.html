@@ -87,10 +87,17 @@
             <!-- Directly embedded Session List -->
             <div class="px-2 mt-2 space-y-1 flex-1 overflow-y-auto min-h-0">
                 {% for s in global_chat_sessions %}
-                <a href="{{ url_for('chat', session_id=s.id) }}" id="sidebar-session-{{ s.id }}" class="flex items-center px-3 py-2 text-xs rounded-md transition-colors {% if request.view_args and request.view_args.get('session_id') == s.id %}bg-gray-700 text-white font-semibold border border-gray-600{% else %}text-gray-400 hover:bg-gray-700 hover:text-white border border-transparent{% endif %}">
-                    <i class="fa-regular fa-message mr-2 text-gray-500"></i>
-                    <span class="truncate sidebar-title-text">{{ s.title }}</span>
-                </a>
+                <div class="group relative flex items-center">
+                    <a href="{{ url_for('chat', session_id=s.id) }}" id="sidebar-session-{{ s.id }}" class="flex-1 flex items-center px-3 py-2 pr-8 text-xs rounded-md transition-colors w-full overflow-hidden {% if request.view_args and request.view_args.get('session_id') == s.id %}bg-gray-700 text-white font-semibold border border-gray-600{% else %}text-gray-400 hover:bg-gray-700 hover:text-white border border-transparent{% endif %}">
+                        <i class="fa-regular fa-message mr-2 text-gray-500 shrink-0"></i>
+                        <span class="truncate block w-full sidebar-title-text">{{ s.title }}</span>
+                    </a>
+                    <form action="{{ url_for('delete_chat', session_id=s.id) }}" method="POST" class="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity" onsubmit="showDeleteModal(event, this, 'Are you sure you want to permanently delete this intelligence chat?');">
+                        <button type="submit" class="text-gray-500 hover:text-red-400 transition-colors cursor-pointer" title="Delete Chat">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </form>
+                </div>
                 {% endfor %}
             </div>
         </nav>
@@ -117,5 +124,58 @@
         </div>
     </main>
 
+    <!-- Custom Delete Modal -->
+    <div id="customDeleteModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 transition-opacity">
+        <div class="modal-content transform scale-95 opacity-0 transition-all duration-200 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-6 w-96 text-center">
+            <div class="text-red-500 mb-4 animate-pulse">
+                <i class="fa-solid fa-triangle-exclamation text-5xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Confirm Deletion</h3>
+            <p id="customDeleteModalMsg" class="text-gray-400 text-sm mb-6"></p>
+            <div class="flex justify-center space-x-4">
+                <button onclick="cancelDelete()" type="button" class="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg font-semibold transition">Cancel</button>
+                <button onclick="confirmDelete()" type="button" class="px-5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-semibold transition shadow-lg shadow-red-500/30">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let formToSubmit = null;
+
+        function showDeleteModal(event, formElement, message) {
+            event.preventDefault(); // Stop normal submission
+
+            const modal = document.getElementById('customDeleteModal');
+            const msgEl = document.getElementById('customDeleteModalMsg');
+            msgEl.textContent = message;
+            
+            // show modal
+            modal.classList.remove('hidden');
+            // small delay for animation
+            setTimeout(() => {
+                modal.querySelector('.modal-content').classList.remove('scale-95', 'opacity-0');
+                modal.querySelector('.modal-content').classList.add('scale-100', 'opacity-100');
+            }, 10);
+
+            // Save form element
+            formToSubmit = formElement;
+        }
+
+        function cancelDelete() {
+            const modal = document.getElementById('customDeleteModal');
+            modal.querySelector('.modal-content').classList.remove('scale-100', 'opacity-100');
+            modal.querySelector('.modal-content').classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+            formToSubmit = null;
+        }
+
+        function confirmDelete() {
+            if (formToSubmit) {
+                formToSubmit.submit();
+            }
+        }
+    </script>
 </body>
 </html>

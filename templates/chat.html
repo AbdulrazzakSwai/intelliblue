@@ -59,24 +59,42 @@ let abortController = null;
                 const targetText = rawText;
                 bubble.innerHTML = '';
                 
+                // Block user input while typing
+                const userInputField = document.getElementById('userInput');
+                const userSendBtn = document.getElementById('sendBtn');
+                userInputField.disabled = true;
+                userSendBtn.disabled = true;
+                userInputField.placeholder = "IntelliBlue is typing...";
+                userInputField.classList.add('opacity-50', 'cursor-not-allowed');
+                userSendBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
                 // Keep UI smooth by revealing characters
                 let renderedWelcome = "";
                 let charIndex = 0;
                 
                 const welcomeInterval = setInterval(() => {
+                    const charsToReveal = 2; // Reveal one char per tick 
                     if (charIndex < targetText.length) {
-                        renderedWelcome += targetText[charIndex];
+                        renderedWelcome += targetText.substring(charIndex, charIndex + charsToReveal);
                         let html = marked.parse(renderedWelcome);
                         html = html.replace(/<\/p>$/, ' <span class="inline-block w-2 h-4 bg-blue-400/70 animate-pulse rounded-sm align-middle ml-1"></span></p>');
                         bubble.innerHTML = html;
-                        charIndex++;
+                        charIndex += charsToReveal;
                         chatWindow.scrollTop = chatWindow.scrollHeight;
                     } else {
                         // Done typing, remove cursor
                         bubble.innerHTML = marked.parse(renderedWelcome);
                         clearInterval(welcomeInterval);
+                        
+                        // Restore user input
+                        userInputField.disabled = false;
+                        userSendBtn.disabled = false;
+                        userInputField.placeholder = "Ask about an alert, request mitigation steps...";
+                        userInputField.classList.remove('opacity-50', 'cursor-not-allowed');
+                        userSendBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        userInputField.focus();
                     }
-                }, 15); // Adjust speed here for welcome message
+                }, 10); // Faster visual tick interval
             }
         });
         chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -233,8 +251,19 @@ let abortController = null;
                     // the front-end will actually just still say "New Chat". Let's check for that instead!
                     if (currentTitle === "New Chat" || currentTitle === "Generating Title...") {
                         const words = message.split(' ').filter(w => w.trim() !== '');
-                        const capitalizedWords = words.slice(0, 3).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
-                        const fallbackTitle = capitalizedWords.join(' ') + (words.length > 3 ? "..." : "");
+                        
+                        // First strip markdown from the raw words so the FIRST letter is actually a letter, not a * or #
+                        const cleanWords = words.slice(0, 3).map(w => w.replace(/[*_#`~>\[\]]/g, ''));
+                        
+                        // Then safely capitalize the clean words
+                        let capitalizedWords = cleanWords.map(w => w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : "");
+                        
+                        let fallbackTitle = capitalizedWords.join(' ') + (words.length > 3 ? "..." : "");
+                        
+                        if (fallbackTitle.length > 40) {
+                             fallbackTitle = fallbackTitle.substring(0, 37) + "...";
+                        }
+                        
                         sessionTitle = fallbackTitle;
                         updateSidebarTitle(fallbackTitle);
                     }

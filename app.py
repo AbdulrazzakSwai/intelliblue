@@ -92,6 +92,21 @@ def chat(session_id):
 
     return render_template('chat.html', history=history, sessions=sessions, active_session=active_session)
 
+@app.route('/chat/<session_id>/delete', methods=['POST'])
+def delete_chat(session_id):
+    ChatMessage.query.filter_by(session_id=session_id).delete()
+    session_to_delete = ChatSession.query.get_or_404(session_id)
+    db.session.delete(session_to_delete)
+    db.session.commit()
+    return redirect(url_for('chat_redirect'))
+
+@app.route('/report/<int:report_id>/delete', methods=['POST'])
+def delete_report(report_id):
+    report_to_delete = Alert.query.get_or_404(report_id)
+    db.session.delete(report_to_delete)
+    db.session.commit()
+    return redirect(url_for('reports'))
+
 # --- API ROUTES ---
 
 @app.route('/api/chat', methods=['POST'])
@@ -114,6 +129,15 @@ def api_chat():
     db.session.add(user_msg_record)
     db.session.commit()
 
+    # Retrieve context: grab the last 10 messages (including this new one) from the DB
+    history_records = ChatMessage.query.filter_by(session_id=session_id).order_by(ChatMessage.timestamp.asc()).all()
+    # Keep it limited so the context window to Ollama doesn't overflow over time
+    history_records = history_records[-10:] 
+    
+    chat_context = ""
+    for msg in history_records:
+        chat_context += f"{msg.sender}: {msg.text}\n"
+
     # Make sure this is pushed all the way to the left
     system_prompt = """You are IntelliBlue, an expert Security Operations Center (SOC) AI assistant. 
 Keep answers technical, clear, and professional, but keep a polite and active tone if the user responded with a greeting or casual message.
@@ -124,7 +148,8 @@ CRITICAL: Defang all IP addresses and URLs using brackets. Example: 192.168.1.1 
 ALWAYS format lists using bullet points (* or -) with each item on a brand new line.
 ALWAYS bold the key entity or title at the beginning of each bullet point.
 ALWAYS end every single sentence and bullet point with a full stop (.)."""
-    combined_prompt = f"{system_prompt}\n\nUser: {user_message}"
+    
+    combined_prompt = f"{system_prompt}\n\n--- Conversation History ---\n{chat_context}IntelliBlue:"
 
     payload = {
         "model": "llama3",
@@ -156,8 +181,8 @@ ALWAYS end every single sentence and bullet point with a full stop (.)."""
             msg_count = ChatMessage.query.filter_by(session_id=session_id).count() 
             
             if session and msg_count == 1:
-                title_prompt = f"""You are an assistant that creates extremely concise titles (3 to 6 words max) for chat conversations.
-Read the following exchange and provide ONLY the title, no quotes, no extra text.
+                title_prompt = f"""You are an assistant that creates extremely concise titles (3 to 4 words max) for chat conversations.
+Read the following exchange and provide ONLY the title, no quotes, no extra text, no markdown, no asterisks, no hashtags.
 User: {user_message}
 AI: {full_ai_response}"""
                 title_payload = {
@@ -168,7 +193,13 @@ AI: {full_ai_response}"""
                 try:
                     title_resp = requests.post(OLLAMA_URL, json=title_payload)
                     if title_resp.status_code == 200:
-                        smart_title = title_resp.json().get('response', '').strip().replace('"', '').replace("'", "")
+                        raw_title = title_resp.json().get('response', '').strip()
+                        # Scrub all markdown and extra characters entirely
+                        smart_title = re.sub(r'[*_#`~>\[\]]', '', raw_title).strip().replace('"', '').replace("'", "")
+                        # Let CSS truncation handle lengths, but hard limit it too just in case
+                        if len(smart_title) > 40:
+                            smart_title = smart_title[:37] + "..."
+                            
                         if smart_title:
                             session.title = smart_title
                             db.session.commit()
@@ -185,9 +216,17 @@ AI: {full_ai_response}"""
             session = ChatSession.query.get(session_id)
             if session and session.title == "Generating Title...":
                 words = user_message.split()
-                # Capitalize the first letter of each of the first 3 words
-                capitalized_words = [word.capitalize() for word in words[:3]]
+                # 1. Strip markdown characters first from the 3 pulled words
+                clean_words = [re.sub(r'[*_#`~>\[\]]', '', word) for word in words[:3]]
+                # 2. Capitalize the clean words so actual letters are hit, not asterisks
+                capitalized_words = [word.capitalize() for word in clean_words if word]
+                
                 fallback_title = " ".join(capitalized_words) + ("..." if len(words) > 3 else "")
+                
+                # Protect database width logic identically to non-fallback mode
+                if len(fallback_title) > 40:
+                    fallback_title = fallback_title[:37] + "..."
+                    
                 session.title = fallback_title
                 db.session.commit()
                 # Instead of yielding here (which fails because the stream is already disconnected due to GeneratorExit),
