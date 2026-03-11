@@ -10,14 +10,34 @@
         </div>
         Actionable Intelligence
     </h3>
-    <button class="bg-gray-800 hover:bg-gray-700 border border-gray-600 text-white px-5 py-2.5 rounded-lg text-sm transition-all shadow-[0_4px_10px_rgba(0,0,0,0.3)] hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] flex items-center font-display tracking-wide font-medium">
-        <i class="fa-solid fa-filter text-cyber-blue mr-2"></i>Filter Alerts
-    </button>
+    <div class="flex gap-3">
+        <div class="relative">
+            <select id="severityFilter" onchange="filterItems()" class="bg-gray-800 border border-gray-600 text-gray-300 text-sm rounded-lg px-4 py-2.5 outline-none focus:border-cyber-blue transition-colors appearance-none pr-10 font-display">
+                <option value="all">All Severities</option>
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-gray-500 text-xs pointer-events-none"></i>
+        </div>
+        <div class="relative">
+            <select id="filetypeFilter" onchange="filterItems()" class="bg-gray-800 border border-gray-600 text-gray-300 text-sm rounded-lg px-4 py-2.5 outline-none focus:border-cyber-blue transition-colors appearance-none pr-10 font-display">
+                <option value="all">All File Types</option>
+                <option value="pcap">PCAP</option>
+                <option value="csv">CSV</option>
+                <option value="json">JSON</option>
+                <option value="txt">TXT</option>
+                <option value="log">LOG</option>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-gray-500 text-xs pointer-events-none"></i>
+        </div>
+    </div>
 </div>
 
-<div class="space-y-6">
+<div class="space-y-6" id="alertsContainer">
     {% for alert in alerts %}
-    <div id="alert-container-{{ alert.id }}" class="bg-gray-850 rounded-xl border border-gray-700 shadow-[0_8px_30px_rgba(0,0,0,0.5)] overflow-hidden relative group hover:border-gray-600 transition-colors">
+    <div id="alert-container-{{ alert.id }}" data-severity="{{ alert.severity }}" data-title="{{ alert.title.lower() }}" class="alert-item bg-gray-850 rounded-xl border border-gray-700 shadow-[0_8px_30px_rgba(0,0,0,0.5)] overflow-hidden relative group hover:border-gray-600 transition-colors">
         <a id="alert-{{ alert.title.replace('AI Detection: ', '').replace('Analysis of ', '') }}" class="absolute -top-20"></a>
 
         <div class="bg-gray-900 px-6 py-4 border-b border-gray-700 flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4">
@@ -31,27 +51,27 @@
                 </p>
             </div>
             <div class="flex flex-wrap gap-3">
-                {% if alert.severity == 'High' %}
+                {% if alert.severity == 'Critical' %}
+                <span class="px-4 py-1.5 bg-purple-900/50 text-purple-400 text-xs font-bold uppercase tracking-widest rounded-md border border-purple-700 shadow-[0_0_10px_rgba(168,85,247,0.2)] flex items-center">
+                    <i class="fa-solid fa-skull-crossbones mr-2"></i> {{ alert.severity }}
+                </span>
+
+                {% elif alert.severity == 'High' %}
                 <span class="px-4 py-1.5 bg-red-900/50 text-red-400 text-xs font-bold uppercase tracking-widest rounded-md border border-red-700 shadow-[0_0_10px_rgba(220,38,38,0.2)] flex items-center">
                     <i class="fa-solid fa-fire-flame-curved mr-2"></i> {{ alert.severity }}
                 </span>
-                
+
                 {% elif alert.severity == 'Medium' %}
-                <span class="px-4 py-1.5 bg-yellow-900/50 text-yellow-400 text-xs font-bold uppercase tracking-widest rounded-md border border-yellow-700 shadow-[0_0_10px_rgba(234,179,8,0.2)] flex items-center">
+                <span class="px-4 py-1.5 bg-orange-900/50 text-orange-400 text-xs font-bold uppercase tracking-widest rounded-md border border-orange-700 shadow-[0_0_10px_rgba(249,115,22,0.2)] flex items-center">
                     <i class="fa-solid fa-bolt mr-2"></i> {{ alert.severity }}
                 </span>
-                
-                {% elif alert.severity == 'Low' %}
+
+                {% else %}
                 <span class="px-4 py-1.5 bg-green-900/50 text-green-400 text-xs font-bold uppercase tracking-widest rounded-md border border-green-700 shadow-[0_0_10px_rgba(34,197,94,0.2)] flex items-center">
                     <i class="fa-solid fa-shield-virus mr-2"></i> {{ alert.severity }}
                 </span>
-                
-                {% else %}
-                <span class="px-4 py-1.5 bg-cyan-900/50 text-cyan-400 text-xs font-bold uppercase tracking-widest rounded-md border border-cyan-700 shadow-[0_0_10px_rgba(6,182,212,0.2)] flex items-center">
-                    <i class="fa-solid fa-circle-info mr-2"></i> {{ alert.severity }}
-                </span>
                 {% endif %}
-                
+
                 <span class="px-4 py-1.5 bg-blue-900/30 text-blue-400 text-xs font-bold uppercase tracking-widest rounded-md border border-blue-800/50 flex items-center">
                     <i class="fa-solid fa-spinner fa-spin-pulse mr-2" style="--fa-animation-duration: 3s;"></i> {{ alert.status }}
                 </span>
@@ -94,8 +114,36 @@
     {% endfor %}
 </div>
 
-<script>
-    window.onload = function() {
+<script>    function filterItems() {
+        const sevFilter = document.getElementById('severityFilter').value;
+        const fileFilter = document.getElementById('filetypeFilter').value;
+        const items = document.querySelectorAll('.alert-item');
+        
+        items.forEach(item => {
+            const severity = item.getAttribute('data-severity');
+            const title = item.getAttribute('data-title');
+            
+            let matchesSev = sevFilter === 'all' || severity === sevFilter;
+            let matchesFile = false;
+            
+            if (fileFilter === 'all') {
+                matchesFile = true;
+            } else if (title.includes('.' + fileFilter)) {
+                matchesFile = true;
+            } else if (fileFilter === 'log' && title.includes('log')) {
+                matchesFile = true;
+            }
+
+            if (matchesSev && matchesFile) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    window.onload = function() {        document.getElementById('severityFilter').value = 'all';
+        document.getElementById('filetypeFilter').value = 'all';
+        filterItems();
         const markdownDivs = document.querySelectorAll('.markdown-content');
         markdownDivs.forEach(div => {
             const rawText = div.textContent.trim();

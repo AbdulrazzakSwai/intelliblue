@@ -29,7 +29,7 @@
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest font-display">Active Alerts</p>
                 <div class="flex items-end gap-3 mt-2">
                     <p class="text-5xl font-bold text-red-400 drop-shadow-[0_0_5px_rgba(239,68,68,0.4)] font-display">{{ active_alerts }}</p>
-                    <span class="text-red-400 text-sm font-bold mb-1 flex items-center gap-1"><i class="fa-solid fa-circle fa-fade text-[8px]"></i> Critical</span>
+                    <span class="text-red-400 text-sm font-bold mb-1 flex items-center gap-1"><i class="fa-solid fa-circle fa-fade text-[8px]"></i> Review Needed</span>
                 </div>
             </div>
             <div class="p-4 bg-gray-900/80 backdrop-blur border border-gray-700/50 rounded-xl shadow-inner group-hover:border-red-500/50 transition-colors">
@@ -101,13 +101,15 @@
         <div class="flex-1 flex flex-col gap-3 relative z-10 overflow-y-auto">
             {% if recent_alerts %}
                 {% for alert in recent_alerts %}
-                <a href="{% if alert.status == 'Active' %}{{ url_for('alerts') }}{% else %}{{ url_for('reports') }}{% endif %}" class="block bg-gray-900/60 rounded-lg p-3 border-l-2 {% if alert.severity == 'High' or alert.severity == 'Critical' %}border-red-500{% elif alert.severity == 'Medium' %}border-yellow-500{% else %}border-cyber-blue{% endif %} hover:bg-gray-800 transition-colors flex items-start gap-3 text-sm group">
-                    {% if alert.severity == 'High' or alert.severity == 'Critical' %}
+                <a href="{% if alert.status == 'Active' %}{{ url_for('alerts') }}{% else %}{{ url_for('reports') }}{% endif %}" class="block bg-gray-900/60 rounded-lg p-3 border-l-2 {% if alert.severity == 'Critical' %}border-purple-500{% elif alert.severity == 'High' %}border-red-500{% elif alert.severity == 'Medium' %}border-orange-500{% else %}border-green-500{% endif %} hover:bg-gray-800 transition-colors flex items-start gap-3 text-sm group">
+                    {% if alert.severity == 'Critical' %}
+                    <i class="fa-solid fa-skull-crossbones text-purple-400 mt-1 group-hover:scale-110 transition-transform"></i>
+                    {% elif alert.severity == 'High' %}
                     <i class="fa-solid fa-shield-virus text-red-400 mt-1 group-hover:scale-110 transition-transform"></i>
                     {% elif alert.severity == 'Medium' %}
-                    <i class="fa-solid fa-file-shield text-yellow-400 mt-1 group-hover:scale-110 transition-transform"></i>
+                    <i class="fa-solid fa-file-shield text-orange-400 mt-1 group-hover:scale-110 transition-transform"></i>
                     {% else %}
-                    <i class="fa-solid fa-info-circle text-cyber-blue mt-1 group-hover:scale-110 transition-transform"></i>
+                    <i class="fa-solid fa-info-circle text-green-500 mt-1 group-hover:scale-110 transition-transform"></i>
                     {% endif %}
                     <div class="flex-1">
                         <div class="flex justify-between items-start">

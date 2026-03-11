@@ -10,6 +10,7 @@ import os
 import uuid
 import markdown
 import io
+from datetime import datetime, timezone
 from fpdf import FPDF, HTMLMixin
 
 class PDF(FPDF, HTMLMixin):
@@ -104,7 +105,7 @@ def export_report_pdf(report_id):
     html_content = f"""
     <h1 align="center">{alert.title}</h1>
     <p><b>Date Generated:</b> {alert.date_created.strftime('%Y-%m-%d %H:%M UTC')}</p>
-    <p><b>Severity Level:</b> <font color="{'red' if alert.severity == 'High' else 'orange' if alert.severity == 'Medium' else 'green' if alert.severity == 'Low' else 'blue'}">{alert.severity}</font> | <b>Status:</b> {alert.status}</p>
+    <p><b>Severity Level:</b> <font color="{'purple' if alert.severity == 'Critical' else 'red' if alert.severity == 'High' else 'orange' if alert.severity == 'Medium' else 'green'}">{alert.severity}</font> | <b>Status:</b> {alert.status}</p>
     <hr>
     """
     html_content += markdown.markdown(alert.description)
@@ -220,14 +221,17 @@ def api_chat():
         chat_context += f"{msg.sender}: {msg.text}\n"
 
     system_prompt = """You are IntelliBlue, an expert Security Operations Center (SOC) AI assistant. 
-Keep answers technical, clear, and professional, but keep a polite and active tone if the user responded with a greeting or casual message.
+Keep answers detailed, technical, clear, and professional, but keep a polite and active tone if the user responded with a greeting or casual message.
 Do not use introductory conversational filler phrases.
 Start your technical answer immediately.
 MUST USE single backticks (`) to highlight technical terms, IP addresses, file paths, and commands.
 CRITICAL: Defang all IP addresses and URLs using brackets. Example: 192.168.1.1 becomes 192[.]168[.]1[.]1 and http://evil.com becomes http[://]evil[.]com.
 ALWAYS format lists using bullet points (* or -) with each item on a brand new line.
 ALWAYS bold the key entity or title at the beginning of each bullet point.
-ALWAYS end every single sentence and bullet point with a full stop (.)."""
+ALWAYS end every single sentence and bullet point with a full stop (.).
+Ensure that your analysis is actionable and relevant to SOC operations.
+Avoid ambiguity and be as specific as possible when describing potential threats or mitigation steps."""
+
     
     combined_prompt = f"{system_prompt}\n\n--- Conversation History ---\n{chat_context}IntelliBlue:"
 
@@ -256,7 +260,7 @@ ALWAYS end every single sentence and bullet point with a full stop (.)."""
             msg_count = ChatMessage.query.filter_by(session_id=session_id).count() 
             
             if session and msg_count == 1:
-                title_prompt = f"""You are an assistant that creates extremely concise titles (3 to 4 words max) for chat conversations.
+                title_prompt = f"""You are an assistant that creates extremely concise titles (3 to 5 words max) for chat conversations.
 Read the following exchange and provide ONLY the title, no quotes, no extra text, no markdown, no asterisks, no hashtags.
 User: {user_message}
 AI: {full_ai_response}"""
@@ -376,8 +380,8 @@ def api_upload():
     original_filename = secure_filename(file.filename)
     name, ext = os.path.splitext(original_filename)
     
-    unique_id = uuid.uuid4().hex[:8]
-    filename = f"{name}_{unique_id}{ext}"
+    timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
+    filename = f"{name}_{timestamp}{ext}"
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
     file.save(filepath)
@@ -400,11 +404,14 @@ CRITICAL INSTRUCTIONS:
 - Do NOT wrap your response in markdown code blocks or triple backticks (```).
 - MUST USE single backticks (`) to highlight technical terms, IP addresses, URLs, file paths, and commands.
 - CRITICAL: Defang all IP addresses and URLs using brackets. Example: 192.168.1.1 becomes 192[.]168[.]1[.]1 and http://evil.com becomes http[://]evil[.]com.
-- SEVERITY RESTRICTION: You MUST only use one of these four levels: Informational, Low, Medium, or High.
+- SEVERITY RESTRICTION: You MUST only use one of these four levels: Low, Medium, High, or Critical.
 - ALWAYS format items under IoCs and Mitigation as a bulleted list (using * or -).
 - ALWAYS place each bullet point on a brand new line.
 - ALWAYS bold the key entity or title at the beginning of each bullet point.
 - ALWAYS end every single sentence and bullet point with a full stop (.).
+- Keep your answers detailed, technical, and professional.
+- Ensure that your analysis is actionable and relevant to SOC operations.
+- Avoid ambiguity and be as specific as possible when describing potential threats or mitigation steps.
 
 Format your response as a formal Incident Report using Markdown.
 Include these exact headings:

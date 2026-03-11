@@ -7,9 +7,29 @@
     <h3 class="text-2xl font-bold text-white font-display tracking-wide flex items-center">
         <i class="fa-solid fa-folder-open text-cyber-blue mr-3 drop-shadow-[0_0_8px_rgba(14,165,233,0.8)]"></i> Archived Reports
     </h3>
-    <button class="bg-gray-800 hover:bg-gray-700 text-white border border-gray-600 px-5 py-2.5 rounded-lg text-sm transition-all shadow-[0_4px_10px_rgba(0,0,0,0.3)] hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] flex items-center font-display tracking-wide font-medium">
-        <i class="fa-solid fa-magnifying-glass text-cyber-neon mr-2"></i>Search Archive
-    </button>
+    <div class="flex gap-3">
+        <div class="relative">
+            <select id="severityFilter" onchange="filterItems()" class="bg-gray-800 border border-gray-600 text-gray-300 text-sm rounded-lg px-4 py-2.5 outline-none focus:border-cyber-blue transition-colors appearance-none pr-10 font-display">
+                <option value="all">All Severities</option>
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-gray-500 text-xs pointer-events-none"></i>
+        </div>
+        <div class="relative">
+            <select id="filetypeFilter" onchange="filterItems()" class="bg-gray-800 border border-gray-600 text-gray-300 text-sm rounded-lg px-4 py-2.5 outline-none focus:border-cyber-blue transition-colors appearance-none pr-10 font-display">
+                <option value="all">All File Types</option>
+                <option value="pcap">PCAP</option>
+                <option value="csv">CSV</option>
+                <option value="json">JSON</option>
+                <option value="txt">TXT</option>
+                <option value="log">LOG</option>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute right-3 top-3.5 text-gray-500 text-xs pointer-events-none"></i>
+        </div>
+    </div>
 </div>
 
 <div class="bg-gray-850 rounded-xl border border-gray-700 shadow-[0_8px_30px_rgba(0,0,0,0.5)] overflow-hidden">
@@ -25,26 +45,26 @@
             </thead>
             <tbody>
                 {% for report in reports %}
-                <tr class="border-b border-gray-800 hover:bg-gray-800 transition-colors">
+                <tr class="report-item border-b border-gray-800 hover:bg-gray-800 transition-colors" data-severity="{{ report.severity }}" data-title="{{ report.title.lower() }}">
                     <td class="px-6 py-4 font-medium text-white flex items-center">
                         <i class="fa-solid fa-file-shield text-cyber-blue mr-3 opacity-80"></i> {{ report.title }}
                     </td>
                     <td class="px-6 py-4">
-                        {% if report.severity == 'High' %}
+                        {% if report.severity == 'Critical' %}
+                        <span class="px-3 py-1.5 bg-purple-900/50 text-purple-400 text-xs font-bold uppercase rounded-md border border-purple-700 shadow-[0_0_10px_rgba(168,85,247,0.2)] tracking-widest flex items-center inline-flex">
+                            <i class="fa-solid fa-skull-crossbones mr-1.5"></i> {{ report.severity }}
+                        </span>
+                        {% elif report.severity == 'High' %}
                         <span class="px-3 py-1.5 bg-red-900/50 text-red-400 text-xs font-bold uppercase rounded-md border border-red-700 shadow-[0_0_10px_rgba(220,38,38,0.2)] tracking-widest flex items-center inline-flex">
                             <i class="fa-solid fa-fire mr-1.5"></i> {{ report.severity }}
                         </span>
                         {% elif report.severity == 'Medium' %}
-                        <span class="px-3 py-1.5 bg-yellow-900/50 text-yellow-400 text-xs font-bold uppercase rounded-md border border-yellow-700 shadow-[0_0_10px_rgba(234,179,8,0.2)] tracking-widest flex items-center inline-flex">
+                        <span class="px-3 py-1.5 bg-orange-900/50 text-orange-400 text-xs font-bold uppercase rounded-md border border-orange-700 shadow-[0_0_10px_rgba(249,115,22,0.2)] tracking-widest flex items-center inline-flex">
                             <i class="fa-solid fa-bolt mr-1.5"></i> {{ report.severity }}
                         </span>
-                        {% elif report.severity == 'Low' %}
+                        {% else %}
                         <span class="px-3 py-1.5 bg-green-900/50 text-green-400 text-xs font-bold uppercase rounded-md border border-green-700 shadow-[0_0_10px_rgba(34,197,94,0.2)] tracking-widest flex items-center inline-flex">
                             <i class="fa-solid fa-shield-virus mr-1.5"></i> {{ report.severity }}
-                        </span>
-                        {% else %}
-                        <span class="px-3 py-1.5 bg-cyan-900/50 text-cyan-400 text-xs font-bold uppercase rounded-md border border-cyan-700 shadow-[0_0_10px_rgba(6,182,212,0.2)] tracking-widest flex items-center inline-flex">
-                            <i class="fa-solid fa-circle-info mr-1.5"></i> {{ report.severity }}
                         </span>
                         {% endif %}
                     </td>
@@ -75,14 +95,14 @@
                             </p>
                         </div>
                         <div class="flex space-x-3">
-                            {% if report.severity == 'High' %}
+                            {% if report.severity == 'Critical' %}
+                            <span class="px-3 py-1 bg-purple-900 text-purple-300 text-xs font-bold uppercase rounded border border-purple-700 shadow-inner">Severity: {{ report.severity }}</span>
+                            {% elif report.severity == 'High' %}
                             <span class="px-3 py-1 bg-red-900 text-red-300 text-xs font-bold uppercase rounded border border-red-700 shadow-inner">Severity: {{ report.severity }}</span>
                             {% elif report.severity == 'Medium' %}
-                            <span class="px-3 py-1 bg-yellow-900 text-yellow-300 text-xs font-bold uppercase rounded border border-yellow-700 shadow-inner">Severity: {{ report.severity }}</span>
-                            {% elif report.severity == 'Low' %}
-                            <span class="px-3 py-1 bg-green-900 text-green-300 text-xs font-bold uppercase rounded border border-green-700 shadow-inner">Severity: {{ report.severity }}</span>
+                            <span class="px-3 py-1 bg-orange-900 text-orange-300 text-xs font-bold uppercase rounded border border-orange-700 shadow-inner">Severity: {{ report.severity }}</span>
                             {% else %}
-                            <span class="px-3 py-1 bg-cyan-900 text-cyan-300 text-xs font-bold uppercase rounded border border-cyan-700 shadow-inner">Severity: {{ report.severity }}</span>
+                            <span class="px-3 py-1 bg-green-900 text-green-300 text-xs font-bold uppercase rounded border border-green-700 shadow-inner">Severity: {{ report.severity }}</span>
                             {% endif %}
                             <span class="px-3 py-1 bg-blue-900 text-blue-300 text-xs font-bold uppercase rounded border border-blue-700 shadow-inner">Status: {{ report.status }}</span>
                         </div>
@@ -105,8 +125,36 @@
     </div>
 </div>
 
-<script>
-    window.onload = function() {
+<script>    function filterItems() {
+        const sevFilter = document.getElementById('severityFilter').value;
+        const fileFilter = document.getElementById('filetypeFilter').value;
+        const items = document.querySelectorAll('.report-item');
+        
+        items.forEach(item => {
+            const severity = item.getAttribute('data-severity');
+            const title = item.getAttribute('data-title');
+            
+            let matchesSev = sevFilter === 'all' || severity === sevFilter;
+            let matchesFile = false;
+            
+            if (fileFilter === 'all') {
+                matchesFile = true;
+            } else if (title.includes('.' + fileFilter)) {
+                matchesFile = true;
+            } else if (fileFilter === 'log' && title.includes('log')) {
+                matchesFile = true;
+            }
+
+            if (matchesSev && matchesFile) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+    window.onload = function() {        document.getElementById('severityFilter').value = 'all';
+        document.getElementById('filetypeFilter').value = 'all';
+        filterItems();
         const markdownDivs = document.querySelectorAll('.markdown-content');
         markdownDivs.forEach(div => {
             const rawText = div.textContent.trim();
