@@ -18,8 +18,14 @@ class Alert(db.Model):
     status = db.Column(db.String(50), default="Active") # Can be 'Active', 'Resolved', 'Archived'
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
+class ChatSession(db.Model):
+    id = db.Column(db.String(50), primary_key=True)
+    title = db.Column(db.String(150), default="New Chat")
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
 class ChatMessage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.String(50), db.ForeignKey('chat_session.id'), nullable=False, default="default")
     sender = db.Column(db.String(50), nullable=False) # Will be 'User' or 'IntelliBlue'
     text = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)

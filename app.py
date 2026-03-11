@@ -1,12 +1,13 @@
 from scapy.all import rdpcap
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, jsonify, redirect, url_for, Response, stream_with_context
-from models import db, LogFile, Alert, ChatMessage
+from models import db, LogFile, Alert, ChatSession, ChatMessage
 import csv
 import re
 import json
 import requests
 import os
+import uuid
 
 app = Flask(__name__)
 
@@ -21,6 +22,13 @@ db.init_app(app)
 
 # URL for your local Ollama instance
 OLLAMA_URL = "http://localhost:11434/api/generate"
+
+# Inject global variables into all templates (like base.html)
+@app.context_processor
+def inject_global_data():
+    return dict(
+        global_chat_sessions=ChatSession.query.order_by(ChatSession.date_created.desc()).all()
+    )
 
 # Create the database tables before the first request
 with app.app_context():
@@ -50,30 +58,69 @@ def reports():
     return render_template('reports.html', reports=all_reports)
 
 @app.route('/chat')
-def chat():
-    # Load chat history from the database
-    history = ChatMessage.query.order_by(ChatMessage.timestamp.asc()).all()
-    return render_template('chat.html', history=history)
+def chat_redirect():
+    # If no sessions exist, create a default one to preserve old messages
+    # and redirect to latest session
+    latest_session = ChatSession.query.order_by(ChatSession.date_created.desc()).first()
+    if not latest_session:
+        return redirect(url_for('new_chat'))
+    return redirect(url_for('chat', session_id=latest_session.id))
+
+@app.route('/chat/new')
+def new_chat():
+    session_id = str(uuid.uuid4())
+    new_session = ChatSession(id=session_id, title="New Chat")
+    db.session.add(new_session)
+    db.session.commit()
+    return redirect(url_for('chat', session_id=session_id))
+
+@app.route('/chat/<session_id>')
+def chat(session_id):
+    sessions = ChatSession.query.order_by(ChatSession.date_created.desc()).all()
+    active_session = ChatSession.query.get_or_404(session_id)
+    
+    # Load chat history from the database for this session
+    history = ChatMessage.query.filter_by(session_id=session_id).order_by(ChatMessage.timestamp.asc()).all()
+    
+    # Pre-populate a fake welcoming message if history is empty
+    if not history:
+        welcoming_msg = {
+            'sender': 'IntelliBlue',
+            'text': "Welcome to IntelliBlue Chat. I am your expert SOC Assistant. You can ask me to explain specific alerts, draft mitigation steps, or analyze security concepts. How can I help you today?"
+        }
+        history = [welcoming_msg]
+
+    return render_template('chat.html', history=history, sessions=sessions, active_session=active_session)
 
 # --- API ROUTES ---
 
 @app.route('/api/chat', methods=['POST'])
 def api_chat():
     user_message = request.json.get('message')
+    session_id = request.json.get('session_id', 'default')
+    
     if not user_message:
         return jsonify({"error": "No message provided"}), 400
 
+    # (We wait to rename the session until after the AI responds)
+    session = ChatSession.query.get(session_id)
+    if session and session.title == "New Chat":
+        # Temporarily set to something else so we know it's pending a real title
+        session.title = "Generating Title..."
+        db.session.commit()
+
     # 1. Save the User's message to the database immediately
-    user_msg_record = ChatMessage(sender="User", text=user_message)
+    user_msg_record = ChatMessage(sender="User", text=user_message, session_id=session_id)
     db.session.add(user_msg_record)
     db.session.commit()
 
     # Make sure this is pushed all the way to the left
     system_prompt = """You are IntelliBlue, an expert Security Operations Center (SOC) AI assistant. 
-Keep answers technical, clear, and professional.
+Keep answers technical, clear, and professional, but keep a polite and active tone if the user responded with a greeting or casual message.
 Do not use introductory conversational filler phrases.
 Start your technical answer immediately.
 MUST USE single backticks (`) to highlight technical terms, IP addresses, file paths, and commands.
+CRITICAL: Defang all IP addresses and URLs using brackets. Example: 192.168.1.1 becomes 192[.]168[.]1[.]1 and http://evil.com becomes http[://]evil[.]com.
 ALWAYS format lists using bullet points (* or -) with each item on a brand new line.
 ALWAYS bold the key entity or title at the beginning of each bullet point.
 ALWAYS end every single sentence and bullet point with a full stop (.)."""
@@ -88,6 +135,7 @@ ALWAYS end every single sentence and bullet point with a full stop (.)."""
     # 2. Generator function to stream the response chunk-by-chunk
     def generate():
         full_ai_response = ""
+        generated_title = None
         try:
             # Send request to local Ollama
             response = requests.post(OLLAMA_URL, json=payload, stream=True)
@@ -99,9 +147,52 @@ ALWAYS end every single sentence and bullet point with a full stop (.)."""
                     full_ai_response += text_chunk
                     yield text_chunk  # Send the tiny piece of text to the frontend immediately
             
+            # Send a secret signal asserting that the AI has explicitly finished its regular message stream
+            yield "|||END_STREAM|||"
+
+            # Check if this is the first exchange before the finally block so we can yield it
+            session = ChatSession.query.get(session_id)
+            # The AI msg is not added to DB yet, so count is 1 (just the user msg)
+            msg_count = ChatMessage.query.filter_by(session_id=session_id).count() 
+            
+            if session and msg_count == 1:
+                title_prompt = f"""You are an assistant that creates extremely concise titles (3 to 6 words max) for chat conversations.
+Read the following exchange and provide ONLY the title, no quotes, no extra text.
+User: {user_message}
+AI: {full_ai_response}"""
+                title_payload = {
+                    "model": "llama3",
+                    "prompt": title_prompt,
+                    "stream": False
+                }
+                try:
+                    title_resp = requests.post(OLLAMA_URL, json=title_payload)
+                    if title_resp.status_code == 200:
+                        smart_title = title_resp.json().get('response', '').strip().replace('"', '').replace("'", "")
+                        if smart_title:
+                            session.title = smart_title
+                            db.session.commit()
+                            generated_title = smart_title
+                            yield f"|||TITLE|||{smart_title}"
+                except Exception as title_e:
+                    print(f"Failed to generate title: {title_e}")
+                    
         except GeneratorExit:
             # Client closed the connection (User interrupted)
             full_ai_response += "\n\n*(user interruption)*"
+            
+            # Since the user interrupted, we should assign a fallback title instead of waiting on LLM
+            session = ChatSession.query.get(session_id)
+            if session and session.title == "Generating Title...":
+                words = user_message.split()
+                # Capitalize the first letter of each of the first 3 words
+                capitalized_words = [word.capitalize() for word in words[:3]]
+                fallback_title = " ".join(capitalized_words) + ("..." if len(words) > 3 else "")
+                session.title = fallback_title
+                db.session.commit()
+                # Instead of yielding here (which fails because the stream is already disconnected due to GeneratorExit),
+                # we just safely store it to the database so that when the user refreshes, the title is correct.
+                
         except Exception as e:
             error_msg = f"\n[Connection Error: {str(e)}]"
             full_ai_response += error_msg
@@ -109,7 +200,7 @@ ALWAYS end every single sentence and bullet point with a full stop (.)."""
         finally:
             # 3. Once the stream is finished or interrupted, save the AI response to the database
             try:
-                ai_msg_record = ChatMessage(sender="IntelliBlue", text=full_ai_response)
+                ai_msg_record = ChatMessage(sender="IntelliBlue", text=full_ai_response, session_id=session_id)
                 db.session.add(ai_msg_record)
                 db.session.commit()
             except Exception as db_e:
@@ -206,6 +297,7 @@ CRITICAL INSTRUCTIONS:
 - Do NOT include any introductory conversational text.
 - Do NOT wrap your response in markdown code blocks or triple backticks (```).
 - MUST USE single backticks (`) to highlight technical terms, IP addresses, URLs, file paths, and commands.
+- CRITICAL: Defang all IP addresses and URLs using brackets. Example: 192.168.1.1 becomes 192[.]168[.]1[.]1 and http://evil.com becomes http[://]evil[.]com.
 - SEVERITY RESTRICTION: You MUST only use one of these four levels: Informational, Low, Medium, or High.
 - ALWAYS format items under IoCs and Mitigation as a bulleted list (using * or -).
 - ALWAYS place each bullet point on a brand new line.

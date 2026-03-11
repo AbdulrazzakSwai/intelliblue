@@ -60,27 +60,39 @@
             <span class="text-xl font-bold tracking-wider text-white">IntelliBlue</span>
         </div>
         
-        <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="{{ url_for('dashboard') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {% if request.endpoint == 'dashboard' %}bg-gray-700 text-white font-semibold shadow{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                <i class="fa-solid fa-chart-line w-6"></i> Dashboard
-            </a>
-            <a href="{{ url_for('logs') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {% if request.endpoint == 'logs' %}bg-gray-700 text-white font-semibold shadow{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                <i class="fa-solid fa-file-lines w-6"></i> Log Management
-            </a>
-            <a href="{{ url_for('alerts') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {% if request.endpoint == 'alerts' %}bg-gray-700 text-white font-semibold shadow{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                <i class="fa-solid fa-triangle-exclamation w-6 text-yellow-500"></i> Active Alerts
-            </a>
-            <a href="{{ url_for('reports') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {% if request.endpoint == 'reports' %}bg-gray-700 text-white font-semibold shadow{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
-                <i class="fa-solid fa-clipboard-check w-6"></i> Archived Reports
-            </a>
-            
-            <div class="pt-6 pb-2">
-                <p class="text-xs uppercase text-gray-500 font-bold px-4">AI Assistant</p>
+        <nav class="flex-1 px-4 py-6 flex flex-col min-h-0">
+            <div class="space-y-2 flex-shrink-0">
+                <a href="{{ url_for('dashboard') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {% if request.endpoint == 'dashboard' %}bg-gray-700 text-white font-semibold shadow{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                    <i class="fa-solid fa-chart-line w-6"></i> Dashboard
+                </a>
+                <a href="{{ url_for('logs') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {% if request.endpoint == 'logs' %}bg-gray-700 text-white font-semibold shadow{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                    <i class="fa-solid fa-file-lines w-6"></i> Log Management
+                </a>
+                <a href="{{ url_for('alerts') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {% if request.endpoint == 'alerts' %}bg-gray-700 text-white font-semibold shadow{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                    <i class="fa-solid fa-triangle-exclamation w-6 text-yellow-500"></i> Active Alerts
+                </a>
+                <a href="{{ url_for('reports') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors {% if request.endpoint == 'reports' %}bg-gray-700 text-white font-semibold shadow{% else %}text-gray-300 hover:bg-gray-700 hover:text-white{% endif %}">
+                    <i class="fa-solid fa-clipboard-check w-6"></i> Archived Reports
+                </a>
             </div>
-            
-            <a href="{{ url_for('chat') }}" class="flex items-center px-4 py-3 rounded-lg transition-colors border {% if request.endpoint == 'chat' %}bg-blue-600 text-white border-blue-500 shadow-lg font-semibold{% else %}text-blue-400 bg-blue-900 bg-opacity-20 hover:bg-blue-600 hover:text-white border-blue-800{% endif %}">
-                <i class="fa-solid fa-robot w-6"></i> IntelliBlue Chat
+
+            <div class="pt-6 pb-2 flex justify-between items-center px-4 flex-shrink-0">
+                <p class="text-xs uppercase text-gray-500 font-bold">AI Assistant</p>
+            </div>
+
+            <a href="{{ url_for('new_chat') }}" class="flex-shrink-0 flex items-center justify-center px-4 py-3 rounded-lg transition-colors border text-white font-bold bg-blue-600 hover:bg-blue-500 border-blue-500 shadow-lg mb-2">
+                <i class="fa-solid fa-plus mr-2"></i> New Chat
             </a>
+
+            <!-- Directly embedded Session List -->
+            <div class="px-2 mt-2 space-y-1 flex-1 overflow-y-auto min-h-0">
+                {% for s in global_chat_sessions %}
+                <a href="{{ url_for('chat', session_id=s.id) }}" id="sidebar-session-{{ s.id }}" class="flex items-center px-3 py-2 text-xs rounded-md transition-colors {% if request.view_args and request.view_args.get('session_id') == s.id %}bg-gray-700 text-white font-semibold border border-gray-600{% else %}text-gray-400 hover:bg-gray-700 hover:text-white border border-transparent{% endif %}">
+                    <i class="fa-regular fa-message mr-2 text-gray-500"></i>
+                    <span class="truncate sidebar-title-text">{{ s.title }}</span>
+                </a>
+                {% endfor %}
+            </div>
         </nav>
         
         <div class="p-4 border-t border-gray-700 text-xs text-gray-500 text-center">
