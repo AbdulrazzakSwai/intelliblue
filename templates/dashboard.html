@@ -3,61 +3,143 @@
 {% block title %}SOC Dashboard Overview{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    
-    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:shadow-[0_0_15px_rgba(14,165,233,0.3)] transition-all duration-300 relative overflow-hidden group">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 relative z-10">
+    <!-- Log Ingestion Card -->
+    <div class="bg-gray-800/80 backdrop-blur-md rounded-2xl p-6 border-y-2 border-y-transparent border-x border-gray-700 shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:shadow-[0_0_25px_rgba(14,165,233,0.4)] hover:border-y-cyber-blue transition-all duration-500 relative overflow-hidden group">
         <div class="absolute inset-0 bg-gradient-to-br from-cyber-blue/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="absolute -right-10 -top-10 w-32 h-32 bg-cyber-blue/10 rounded-full blur-2xl group-hover:bg-cyber-blue/20 transition-all duration-500"></div>
         <div class="flex items-center justify-between relative z-10">
             <div>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest font-display">Total Logs Ingested</p>
-                <p class="text-4xl font-bold text-white mt-2 drop-shadow-md font-display">{{ total_logs }}</p>
+                <div class="flex items-end gap-3 mt-2">
+                    <p class="text-5xl font-bold text-white drop-shadow-md font-display">{{ total_logs }}</p>
+                    <span class="text-cyber-blue text-sm font-bold mb-1"><i class="fa-solid fa-arrow-trend-up"></i> Live</span>
+                </div>
             </div>
-            <div class="p-4 bg-gray-900 border border-gray-700 rounded-xl shadow-inner group-hover:border-cyber-blue transition-colors">
-                <i class="fa-solid fa-server text-cyber-blue text-2xl drop-shadow-[0_0_8px_rgba(14,165,233,0.6)]"></i>
+            <div class="p-4 bg-gray-900/80 backdrop-blur border border-gray-700/50 rounded-xl shadow-inner group-hover:border-cyber-blue/50 transition-colors">
+                <i class="fa-solid fa-server text-cyber-blue text-3xl drop-shadow-[0_0_10px_rgba(14,165,233,0.7)]"></i>
             </div>
         </div>
     </div>
 
-    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all duration-300 relative overflow-hidden group">
+    <!-- Active Alerts Card -->
+    <div class="bg-gray-800/80 backdrop-blur-md rounded-2xl p-6 border-y-2 border-y-transparent border-x border-gray-700 shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:shadow-[0_0_25px_rgba(239,68,68,0.4)] hover:border-y-red-500 transition-all duration-500 relative overflow-hidden group">
         <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="absolute -right-10 -top-10 w-32 h-32 bg-red-500/10 rounded-full blur-2xl group-hover:bg-red-500/20 transition-all duration-500"></div>
         <div class="flex items-center justify-between relative z-10">
             <div>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-widest font-display">Active Alerts</p>
-                <p class="text-4xl font-bold text-red-400 mt-2 drop-shadow-[0_0_5px_rgba(239,68,68,0.4)] font-display">{{ active_alerts }}</p>
+                <div class="flex items-end gap-3 mt-2">
+                    <p class="text-5xl font-bold text-red-400 drop-shadow-[0_0_5px_rgba(239,68,68,0.4)] font-display">{{ active_alerts }}</p>
+                    <span class="text-red-400 text-sm font-bold mb-1 flex items-center gap-1"><i class="fa-solid fa-circle fa-fade text-[8px]"></i> Critical</span>
+                </div>
             </div>
-            <div class="p-4 bg-gray-900 border border-gray-700 rounded-xl shadow-inner group-hover:border-red-500 transition-colors">
-                <i class="fa-solid fa-triangle-exclamation text-red-500 text-2xl fa-fade drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" style="--fa-animation-duration: 2s;"></i>
+            <div class="p-4 bg-gray-900/80 backdrop-blur border border-gray-700/50 rounded-xl shadow-inner group-hover:border-red-500/50 transition-colors">
+                <i class="fa-solid fa-triangle-exclamation text-red-500 text-3xl fa-beat-fade drop-shadow-[0_0_10px_rgba(239,68,68,0.8)]" style="--fa-animation-duration: 2s;"></i>
             </div>
         </div>
     </div>
 
-    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:shadow-[0_0_15px_rgba(34,197,94,0.3)] transition-all duration-300 relative overflow-hidden group">
+    <!-- AI Engine Card -->
+    <div class="bg-gray-800/80 backdrop-blur-md rounded-2xl p-6 border-y-2 border-y-transparent border-x border-gray-700 shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:shadow-[0_0_25px_rgba(34,197,94,0.4)] hover:border-y-green-500 transition-all duration-500 relative overflow-hidden group">
         <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div class="absolute -right-10 -top-10 w-32 h-32 bg-green-500/10 rounded-full blur-2xl group-hover:bg-green-500/20 transition-all duration-500"></div>
         <div class="flex items-center justify-between relative z-10">
             <div>
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest font-display">AI Engine</p>
-                <p class="text-2xl font-bold text-green-400 mt-3 drop-shadow-[0_0_5px_rgba(34,197,94,0.4)] font-display flex items-center">
-                    Llama 3 <i class="fa-solid fa-bolt text-yellow-400 text-sm ml-2 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]"></i>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-widest font-display">AI Engine Core</p>
+                <p class="text-3xl font-bold text-green-400 mt-2 drop-shadow-[0_0_5px_rgba(34,197,94,0.4)] font-display flex items-center gap-2">
+                    Llama 3 <i class="fa-solid fa-bolt text-yellow-400 text-xl drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]"></i>
                 </p>
+                <p class="text-xs text-green-500/70 mt-1 font-mono tracking-wider"><i class="fa-solid fa-check-circle mr-1"></i>System Optimal</p>
             </div>
-            <div class="p-4 bg-gray-900 border border-gray-700 rounded-xl shadow-inner group-hover:border-green-500 transition-colors">
-                <i class="fa-solid fa-brain text-green-500 text-2xl drop-shadow-[0_0_8px_rgba(34,197,94,0.6)]"></i>
+            <div class="p-4 bg-gray-900/80 backdrop-blur border border-gray-700/50 rounded-xl shadow-inner group-hover:border-green-500/50 transition-colors">
+                <i class="fa-solid fa-brain text-green-500 text-3xl drop-shadow-[0_0_10px_rgba(34,197,94,0.7)] hover:animate-pulse"></i>
             </div>
         </div>
     </div>
 </div>
 
-<div class="bg-gray-800/80 backdrop-blur-sm rounded-xl p-8 border border-gray-700 shadow-[0_8px_30px_rgba(0,0,0,0.5)] relative overflow-hidden">
-    <div class="absolute top-0 right-0 p-8 opacity-10">
-        <i class="fa-solid fa-shield-virus text-[150px] text-cyber-blue"></i>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
+    <!-- Welcome Panel (Takes 2 columns on large screens) -->
+    <div class="lg:col-span-2 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-md rounded-2xl p-8 border border-gray-700/50 shadow-[0_8px_30px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+        <!-- Animated Background Grid -->
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0wIDM5LjVMMDQwIDM5LjUiIHN0cm9rZT0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PHBhdGggZD0iTTM5LjUgMEwzOS41IDQwIiBzdHJva2U9InJnYmEoMjU1LCAyNTUsIDI1NSwgMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')] opacity-30"></div>
+        
+        <!-- Scanning Line Animation -->
+        <div class="absolute left-0 top-0 w-full h-[2px] bg-gradient-to-r from-transparent via-cyber-neon to-transparent opacity-50 animate-[scan_3s_ease-in-out_infinite]"></div>
+
+        <div class="absolute -right-10 -bottom-10 p-8 opacity-5 transform rotate-12 group-hover:rotate-0 transition-transform duration-700">
+            <i class="fa-solid fa-shield-halved text-[200px] text-cyber-blue"></i>
+        </div>
+        
+        <div class="relative z-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyber-blue/10 border border-cyber-blue/20 text-cyber-neon text-xs font-bold uppercase tracking-widest mb-6">
+                <span class="w-2 h-2 rounded-full bg-cyber-neon animate-ping"></span>
+                SOC Terminal Active
+            </div>
+            
+            <h3 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-cyber-neon to-cyber-blue mb-5 font-display flex items-center drop-shadow-lg">
+                <i class="fa-solid fa-satellite-dish text-cyber-blue mr-4 drop-shadow-[0_0_12px_rgba(14,165,233,0.8)] text-3xl"></i> IntelliBlue Core
+            </h3>
+            
+            <p class="text-gray-300 mb-6 text-lg leading-relaxed max-w-2xl font-light">
+                Your AI-assisted Security Operations Center platform is active. Navigate to the <strong class="text-white font-semibold border-b border-cyber-blue/50 pb-0.5">Log Management</strong> section to upload SIEM, EDR, or Firewall logs for AI analysis, or use the <strong class="text-white font-semibold border-b border-cyber-blue/50 pb-0.5">IntelliBlue Chat</strong> to ask contextual questions about active threats.
+            </p>
+
+            <div class="flex gap-4 mt-8">
+                <a href="{{ url_for('logs') }}" class="px-6 py-3 rounded-lg bg-gray-800/80 border border-gray-600 hover:border-cyber-blue text-white font-medium transition-all duration-300 hover:shadow-[0_0_15px_rgba(14,165,233,0.3)] flex items-center gap-2 group/btn">
+                    <i class="fa-solid fa-upload text-gray-400 group-hover/btn:text-cyber-blue transition-colors"></i> Upload Logs
+                </a>
+                <a href="{{ url_for('new_chat') }}" class="px-6 py-3 rounded-lg bg-cyber-blue/10 border border-cyber-blue/30 text-cyber-neon hover:bg-cyber-blue hover:text-white font-medium transition-all duration-300 shadow-[0_0_15px_rgba(14,165,233,0.1)] hover:shadow-[0_0_20px_rgba(14,165,233,0.4)] flex items-center gap-2">
+                    <i class="fa-solid fa-robot"></i> Ask AI Assistant
+                </a>
+            </div>
+        </div>
     </div>
-    <div class="relative z-10">
-        <h3 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon to-cyber-blue mb-4 font-display flex items-center">
-            <i class="fa-solid fa-satellite-dish text-cyber-blue mr-3 drop-shadow-[0_0_8px_rgba(14,165,233,0.8)]"></i> Welcome to IntelliBlue
-        </h3>
-        <p class="text-gray-300 mb-4 text-lg leading-relaxed max-w-4xl">
-            Your AI-assisted Security Operations Center platform is active. Navigate to the <strong>Log Management</strong> section to upload SIEM, EDR, or Firewall logs for AI analysis, or use the <strong>IntelliBlue Chat</strong> to ask contextual questions about active threats.
-        </p>
+
+    <!-- Recent Alerts Feed -->
+    <div class="bg-gray-800/80 backdrop-blur-md rounded-2xl p-6 border border-gray-700 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex flex-col relative overflow-hidden">
+        <div class="flex items-center justify-between mb-4 border-b border-gray-700/50 pb-4 relative z-10">
+            <h4 class="text-sm font-bold text-gray-300 uppercase tracking-wider font-display flex items-center gap-2">
+                <i class="fa-solid fa-bell text-cyber-blue"></i> Recent Alerts
+            </h4>
+        </div>
+        
+        <div class="flex-1 flex flex-col gap-3 relative z-10 overflow-y-auto">
+            {% if recent_alerts %}
+                {% for alert in recent_alerts %}
+                <a href="{% if alert.status == 'Active' %}{{ url_for('alerts') }}{% else %}{{ url_for('reports') }}{% endif %}" class="block bg-gray-900/60 rounded-lg p-3 border-l-2 {% if alert.severity == 'High' or alert.severity == 'Critical' %}border-red-500{% elif alert.severity == 'Medium' %}border-yellow-500{% else %}border-cyber-blue{% endif %} hover:bg-gray-800 transition-colors flex items-start gap-3 text-sm group">
+                    {% if alert.severity == 'High' or alert.severity == 'Critical' %}
+                    <i class="fa-solid fa-shield-virus text-red-400 mt-1 group-hover:scale-110 transition-transform"></i>
+                    {% elif alert.severity == 'Medium' %}
+                    <i class="fa-solid fa-file-shield text-yellow-400 mt-1 group-hover:scale-110 transition-transform"></i>
+                    {% else %}
+                    <i class="fa-solid fa-info-circle text-cyber-blue mt-1 group-hover:scale-110 transition-transform"></i>
+                    {% endif %}
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <p class="text-gray-300">{{ alert.title }}</p>
+                            <span class="text-[10px] px-2 py-0.5 rounded border {% if alert.status == 'Active' %}bg-red-500/10 text-red-400 border-red-500/30{% else %}bg-green-500/10 text-green-400 border-green-500/30{% endif %} ml-2 whitespace-nowrap">{{ alert.status }}</span>
+                        </div>
+                        <p class="text-xs text-gray-500 font-mono mt-1">{{ alert.severity }} • {{ alert.date_created.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="flex flex-col items-center justify-center h-full text-gray-500 opacity-70">
+                    <i class="fa-solid fa-shield-check text-4xl mb-3"></i>
+                    <p class="text-sm">No recent alerts found.</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
+
+<style>
+    @keyframes scan {
+        0% { transform: translateY(-100%); }
+        50% { transform: translateY(400px); opacity: 0; }
+        100% { transform: translateY(400px); opacity: 0; }
+    }
+</style>
 {% endblock %}

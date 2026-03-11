@@ -47,7 +47,8 @@ with app.app_context():
 def dashboard():
     total_logs = LogFile.query.count()
     active_alerts = Alert.query.filter_by(status='Active').count()
-    return render_template('dashboard.html', total_logs=total_logs, active_alerts=active_alerts)
+    recent_alerts = Alert.query.order_by(Alert.date_created.desc()).limit(3).all()
+    return render_template('dashboard.html', total_logs=total_logs, active_alerts=active_alerts, recent_alerts=recent_alerts)
 
 @app.route('/logs')
 def logs():
