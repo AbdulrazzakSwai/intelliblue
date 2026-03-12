@@ -264,6 +264,24 @@ let currentRequestId = null;
                 activeRaw = activeRaw.replace('|||END_STREAM|||', '');
             }
 
+            if (activeRaw.includes('|||TITLE_PENDING|||')) {
+                activeRaw = activeRaw.replace('|||TITLE_PENDING|||', '');
+                if (!sessionTitle) {
+                    sessionTitle = 'pending';
+                    const pollTitle = setInterval(async () => {
+                        try {
+                            const resp = await fetch(`/api/session_title/${activeSessionId}`);
+                            const data = await resp.json();
+                            if (data.title && data.title !== 'New Chat' && data.title !== 'Generating Title...') {
+                                clearInterval(pollTitle);
+                                updateSidebarTitle(data.title);
+                            }
+                        } catch(e) { clearInterval(pollTitle); }
+                    }, 2000);
+                    setTimeout(() => clearInterval(pollTitle), 30000);
+                }
+            }
+
             if (activeRaw.includes('|||TITLE|||')) {
                 const parts = activeRaw.split('|||TITLE|||');
                 activeRaw = parts[0];
