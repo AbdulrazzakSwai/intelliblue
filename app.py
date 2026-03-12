@@ -320,6 +320,7 @@ Guidelines:
 2. Avoid generic generic titles like "Analysis Result" or "User Question".
 3. Use Title Case.
 4. STRICT OUTPUT: Only the raw title text. NO quotes, NO markdown, NO prefixes.
+5. If the initial query and the AI's analysis are not security-related or do not provide clear context, default to something relevant to the content, such as "General Inquiry" or "Casual Conversation".
 
 User Query: {limit_user}
 AI Analysis: {limit_ai}
