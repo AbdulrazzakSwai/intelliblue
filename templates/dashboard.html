@@ -111,10 +111,10 @@
                     {% else %}
                     <i class="fa-solid fa-info-circle text-green-500 mt-1 group-hover:scale-110 transition-transform"></i>
                     {% endif %}
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <p class="text-gray-300">{{ alert.title }}</p>
-                            <span class="text-[10px] px-2 py-0.5 rounded border {% if alert.status == 'Active' %}bg-red-500/10 text-red-400 border-red-500/30{% else %}bg-green-500/10 text-green-400 border-green-500/30{% endif %} ml-2 whitespace-nowrap">{{ alert.status }}</span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start gap-2">
+                            <p class="text-gray-300 truncate">{{ alert.title }}</p>
+                            <span class="text-[10px] px-2 py-0.5 rounded border {% if alert.status == 'Active' %}bg-red-500/10 text-red-400 border-red-500/30{% else %}bg-green-500/10 text-green-400 border-green-500/30{% endif %} shrink-0 whitespace-nowrap">{{ alert.status }}</span>
                         </div>
                         <p class="text-xs text-gray-500 font-mono mt-1">{{ alert.severity }} • {{ alert.date_created.strftime('%Y-%m-%d %H:%M') }}</p>
                     </div>
