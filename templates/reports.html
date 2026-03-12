@@ -158,7 +158,7 @@
         const markdownDivs = document.querySelectorAll('.markdown-content');
         markdownDivs.forEach(div => {
             const rawText = div.textContent.trim();
-            div.innerHTML = marked.parse(rawText);
+            div.innerHTML = DOMPurify.sanitize(marked.parse(rawText));
         });
     };
 </script>

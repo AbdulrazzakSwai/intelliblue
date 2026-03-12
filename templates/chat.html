@@ -69,12 +69,13 @@
 const activeSessionId = "{{ active_session.id }}";
 const chatWindow = document.getElementById('chatWindow');
 let abortController = null;
+let currentRequestId = null;
 
     window.onload = function() {
         const historyBubbles = document.querySelectorAll('.ai-message-content');
         historyBubbles.forEach(bubble => {
             const rawText = bubble.textContent;
-            bubble.innerHTML = marked.parse(rawText);
+            bubble.innerHTML = DOMPurify.sanitize(marked.parse(rawText));
             
             if (bubble.hasAttribute('data-welcome')) {
                 const targetText = rawText;
@@ -98,13 +99,13 @@ let abortController = null;
                     const charsToReveal = 2;
                     if (charIndex < targetText.length) {
                         renderedWelcome += targetText.substring(charIndex, charIndex + charsToReveal);
-                        let html = marked.parse(renderedWelcome);
+                        let html = DOMPurify.sanitize(marked.parse(renderedWelcome));
                         html = html.replace(/<\/p>$/, ' <span class="inline-block w-2 h-4 bg-blue-400/70 animate-pulse rounded-sm align-middle ml-1"></span></p>');
                         bubble.innerHTML = html;
                         charIndex += charsToReveal;
                         chatWindow.scrollTop = chatWindow.scrollHeight;
                     } else {
-                        bubble.innerHTML = marked.parse(renderedWelcome);
+                        bubble.innerHTML = DOMPurify.sanitize(marked.parse(renderedWelcome));
                         clearInterval(welcomeInterval);
                         
                         userInputField.disabled = false;
@@ -182,6 +183,14 @@ let abortController = null;
 
     async function sendMessage(event, regenerate = false) {
         if (event) event.preventDefault();
+        
+        let requestId = Date.now();
+        currentRequestId = requestId;
+
+        if (regenerate && abortController) {
+            abortController.abort();
+        }
+
         hideRegenerateButton();
         
         const inputField = document.getElementById('userInput');
@@ -243,6 +252,7 @@ let abortController = null;
         let sessionTitle = null;
         let isStreaming = true;
         let startedTyping = false;
+        let regenerateBtnShown = false;
 
         const typeInterval = setInterval(() => {
             let activeRaw = rawMarkdown;
@@ -250,6 +260,10 @@ let abortController = null;
             if (activeRaw.includes('|||END_STREAM|||')) {
                 sendBtn.classList.remove('hidden');
                 stopBtn.classList.add('hidden');
+                if (!regenerateBtnShown) {
+                    showRegenerateButton();
+                    regenerateBtnShown = true;
+                }
                 activeRaw = activeRaw.replace('|||END_STREAM|||', '');
             }
 
@@ -273,7 +287,7 @@ let abortController = null;
                 
                 const isScrolledToBottom = Math.abs(chatWindow.scrollHeight - chatWindow.clientHeight - chatWindow.scrollTop) < 50;
                 
-                let html = marked.parse(renderedMarkdown);
+                let html = DOMPurify.sanitize(marked.parse(renderedMarkdown));
                 if (isStreaming) {
                     html = html.replace(/<\/p>$/, ' <span class="inline-block w-2 h-4 bg-blue-400/70 animate-pulse rounded-sm align-middle ml-1"></span></p>');
                 }
@@ -283,7 +297,7 @@ let abortController = null;
                     chatWindow.scrollTop = chatWindow.scrollHeight;
                 }
             } else if (!isStreaming) {
-                aiBubbleElement.innerHTML = marked.parse(renderedMarkdown);
+                aiBubbleElement.innerHTML = DOMPurify.sanitize(marked.parse(renderedMarkdown));
                 clearInterval(typeInterval);
             }
         }, 16);
@@ -314,8 +328,14 @@ let abortController = null;
             } else {
                 rawMarkdown += "\n\n*(user interruption)*";
                 
-                sendBtn.classList.remove('hidden');
-                stopBtn.classList.add('hidden');
+                if (currentRequestId === requestId) {
+                    sendBtn.classList.remove('hidden');
+                    stopBtn.classList.add('hidden');
+                    if (!regenerateBtnShown) {
+                        showRegenerateButton();
+                        regenerateBtnShown = true;
+                    }
+                }
                 
                 const currentSessionLink = document.getElementById('sidebar-session-' + activeSessionId);
                 if (!sessionTitle && currentSessionLink) {
@@ -341,8 +361,10 @@ let abortController = null;
         } finally {
             clearInterval(dotsInterval);
             isStreaming = false;
-            abortController = null;
-            showRegenerateButton();
+            if (currentRequestId === requestId) {
+                abortController = null;
+                showRegenerateButton();
+            }
         }
     }
 
