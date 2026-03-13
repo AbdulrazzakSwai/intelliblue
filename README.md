@@ -6,7 +6,6 @@
 
 <p align="center">
   <b>AI-Powered Security Operations Center Platform</b><br>
-  <i>Threat Hunting · Incident Response · Digital Forensics</i>
 </p>
 
 <p align="center">
