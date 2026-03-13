@@ -255,7 +255,7 @@ def api_chat():
     for msg in history_records:
         chat_context += f"{msg.sender}: {msg.text}\n"
 
-    system_prompt = """You are IntelliBlue, an expert Security Operations Center (SOC) AI assistant with deep expertise in threat hunting, incident response, and digital forensics.
+    system_prompt = """You are IntelliBlue, an expert Security Operations Center (SOC) AI assistant with deep expertise in threat hunting, incident response, and security operations.
 
 CORE BEHAVIOR:
 - You are conversational and friendly. If the user greets you, asks how you are, or engages in casual conversation, respond naturally and warmly. Not every message needs to be about cybersecurity.
