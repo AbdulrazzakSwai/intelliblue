@@ -58,18 +58,18 @@ echo "  [2/6] Installing missing tools..."
 if [ "$GIT_MISSING" = "1" ] || [ "$PY_MISSING" = "1" ] || [ "$PCAP_MISSING" = "1" ]; then
     echo "        Updating package manager and installing missing tools..."
     if command -v apt-get &>/dev/null; then
-        sudo apt-get update -qq
-        [ "$GIT_MISSING" = "1" ] && sudo apt-get install -y git
-        [ "$PY_MISSING" = "1" ] && sudo apt-get install -y python3 python3-pip python3-venv
-        [ "$PCAP_MISSING" = "1" ] && sudo apt-get install -y libpcap-dev
+        sudo apt-get update -qq >/dev/null 2>&1
+        [ "$GIT_MISSING" = "1" ] && sudo apt-get install -y -qq git >/dev/null 2>&1
+        [ "$PY_MISSING" = "1" ] && sudo apt-get install -y -qq python3 python3-pip python3-venv >/dev/null 2>&1
+        [ "$PCAP_MISSING" = "1" ] && sudo apt-get install -y -qq libpcap-dev >/dev/null 2>&1
     elif command -v dnf &>/dev/null; then
-        [ "$GIT_MISSING" = "1" ] && sudo dnf install -y git
-        [ "$PY_MISSING" = "1" ] && sudo dnf install -y python3 python3-pip
-        [ "$PCAP_MISSING" = "1" ] && sudo dnf install -y libpcap-devel
+        [ "$GIT_MISSING" = "1" ] && sudo dnf install -y -q git >/dev/null 2>&1
+        [ "$PY_MISSING" = "1" ] && sudo dnf install -y -q python3 python3-pip >/dev/null 2>&1
+        [ "$PCAP_MISSING" = "1" ] && sudo dnf install -y -q libpcap-devel >/dev/null 2>&1
     elif command -v pacman &>/dev/null; then
-        [ "$GIT_MISSING" = "1" ] && sudo pacman -Sy --noconfirm git
-        [ "$PY_MISSING" = "1" ] && sudo pacman -Sy --noconfirm python python-pip
-        [ "$PCAP_MISSING" = "1" ] && sudo pacman -Sy --noconfirm libpcap
+        [ "$GIT_MISSING" = "1" ] && sudo pacman -Sy --noconfirm -q git >/dev/null 2>&1
+        [ "$PY_MISSING" = "1" ] && sudo pacman -Sy --noconfirm -q python python-pip >/dev/null 2>&1
+        [ "$PCAP_MISSING" = "1" ] && sudo pacman -Sy --noconfirm -q libpcap >/dev/null 2>&1
     else
         echo "  [X] Could not detect package manager to install tools."
         echo "      Please install Git, Python 3, and libpcap manually."
@@ -80,7 +80,7 @@ fi
 
 if [ "$OLLAMA_MISSING" = "1" ]; then
     echo "        Installing Ollama..."
-    curl -fsSL https://ollama.com/install.sh | sh
+    curl -fsSL https://ollama.com/install.sh | sh >/dev/null 2>&1
     if [ $? -ne 0 ]; then
         echo "  [X] Ollama installation failed."
         echo "      Please install it manually from https://ollama.com"
@@ -131,7 +131,7 @@ if [ -d "$INSTALL_DIR" ]; then
     echo "        Skipping clone. (Remove directory to re-clone)"
     cd "$INSTALL_DIR"
 else
-    git clone https://github.com/AbdulrazzakSwai/IntelliBlue.git "$INSTALL_DIR"
+    git clone https://github.com/AbdulrazzakSwai/IntelliBlue.git "$INSTALL_DIR" -q >/dev/null 2>&1
     cd "$INSTALL_DIR"
 fi
 
@@ -142,7 +142,7 @@ echo ""
 # -------------------------------------------
 echo "  [5/6] Setting up Python virtual environment..."
 if [ ! -d "venv" ]; then
-    python3 -m venv venv
+    python3 -m venv venv >/dev/null 2>&1
     echo "        Created virtual environment (venv/)."
 fi
 
@@ -153,8 +153,8 @@ echo ""
 # Install Dependencies
 # -------------------------------------------
 echo "  [6/6] Installing Python dependencies..."
-pip install --upgrade pip --quiet
-pip install -r requirements.txt
+pip install --upgrade pip --quiet >/dev/null 2>&1
+pip install -r requirements.txt --quiet >/dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo "  [X] Failed to install Python dependencies."
     exit 1

@@ -165,12 +165,12 @@ if (Test-Path $installDir) {
     if ($ForceInstall) {
         Write-Host "      Force install specified, removing existing directory..." -ForegroundColor Yellow
         Remove-Item -Recurse -Force $installDir
-        git clone https://github.com/AbdulrazzakSwai/IntelliBlue.git $installDir
+        git clone https://github.com/AbdulrazzakSwai/IntelliBlue.git $installDir -q *>$null
     } else {
         Write-Host "      Skipping clone. Use -ForceInstall to overwrite." -ForegroundColor Yellow
     }
 } else {
-    git clone https://github.com/AbdulrazzakSwai/IntelliBlue.git $installDir
+    git clone https://github.com/AbdulrazzakSwai/IntelliBlue.git $installDir -q *>$null
 }
 Set-Location $installDir
 Write-Host ""
@@ -180,7 +180,7 @@ Write-Host ""
 # -------------------------------------------
 Write-Host "[5/6] Setting up Python virtual environment..." -ForegroundColor Yellow
 if (-not (Test-Path "venv")) {
-    python -m venv venv
+    python -m venv venv *>$null
     Write-Host "      Created virtual environment (venv/)." -ForegroundColor Green
 } else {
     Write-Host "      Virtual environment already exists." -ForegroundColor Green
@@ -192,8 +192,8 @@ Write-Host ""
 # Install Dependencies
 # -------------------------------------------
 Write-Host "[6/6] Installing Python dependencies..." -ForegroundColor Yellow
-& ".\venv\Scripts\python.exe" -m pip install --upgrade pip --quiet
-& ".\venv\Scripts\python.exe" -m pip install -r requirements.txt
+& ".\venv\Scripts\python.exe" -m pip install --upgrade pip --quiet *>$null
+& ".\venv\Scripts\python.exe" -m pip install -r requirements.txt --quiet *>$null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "      [X] Failed to install Python dependencies." -ForegroundColor Red
     exit 1

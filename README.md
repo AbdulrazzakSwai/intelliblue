@@ -132,6 +132,8 @@ Security:   Werkzeug · DOMPurify · Prompt injection guards
 
 > **⚠️ WARNING:** Installing and running IntelliBlue inside a Virtual Machine (VM) is highly discouraged. Running local Large Language Models (like Llama 3) inside a VM without dedicated GPU power will result in severely degraded performance and extremely slow AI response times.
 
+> **ℹ️ NOTE:** Installation may take a while because the Llama 3 model is nearly 5GB in size.
+
 ### Windows (Automated Install)
 
 Open PowerShell **as Administrator** and run the following command to download and execute the installation script in one step:
