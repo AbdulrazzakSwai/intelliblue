@@ -103,9 +103,9 @@ fi
 echo ""
 
 # -------------------------------------------
-# Llama 3 Setup
+# Llama Models Setup
 # -------------------------------------------
-echo -e "${YELLOW}  [*] [3/6] Setting up Llama 3 model...${NC}"
+echo -e "${YELLOW}  [*] [3/6] Setting up Llama models...${NC}"
 
 # Start Ollama service if not running
 if ! pgrep -x "ollama" &>/dev/null; then
@@ -114,18 +114,20 @@ if ! pgrep -x "ollama" &>/dev/null; then
     sleep 3
 fi
 
-if ollama list 2>/dev/null | grep -qi "llama3"; then
-    echo -e "${GREEN}      [+] Llama 3 model already installed.${NC}"
-else
-    echo -e "${CYAN}      [*] Pulling Llama 3 model via Ollama (This may take a while)...${NC}"
-    ollama pull llama3
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}  [-] Failed to pull Llama 3 model.${NC}"
-        echo -e "${RED}      Make sure Ollama is running and try:  ollama pull llama3${NC}"
+for model in "llama3" "llama3.2"; do
+    if ollama list 2>/dev/null | grep -qi "^${model}:"; then
+        echo -e "${GREEN}      [+] ${model} model already installed.${NC}"
     else
-        echo -e "${GREEN}      [+] Llama 3 model ready.${NC}"
+        echo -e "${CYAN}      [*] Pulling ${model} model via Ollama (This may take a while)...${NC}"
+        ollama pull ${model}
+        if [ $? -ne 0 ]; then
+            echo -e "${RED}  [-] Failed to pull ${model} model.${NC}"
+            echo -e "${RED}      Make sure Ollama is running and try:  ollama pull ${model}${NC}"
+        else
+            echo -e "${GREEN}      [+] ${model} model ready.${NC}"
+        fi
     fi
-fi
+done
 
 echo ""
 

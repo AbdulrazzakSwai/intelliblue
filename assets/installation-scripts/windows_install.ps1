@@ -144,20 +144,24 @@ if (-not $npcapInstalled) {
 Write-Host ""
 
 # -------------------------------------------
-# Install and run Llama 3
+# Install and run Llama models
 # -------------------------------------------
-Write-Host "[*] [3/6] Setting up Llama 3 model..." -ForegroundColor Yellow
+Write-Host "[*] [3/6] Setting up Llama models..." -ForegroundColor Yellow
 $ollamaList = (ollama list 2>&1)
-if ($ollamaList -match "llama3") {
-    Write-Host "      [+] Llama 3 model already installed." -ForegroundColor Green
-} else {
-    Write-Host "      [*] Pulling Llama 3 model via Ollama (This may take a while)..." -ForegroundColor Cyan
-    ollama pull llama3
-    if ($LASTEXITCODE -ne 0) {
-        Write-Host "      [-] Failed to pull Llama 3 model." -ForegroundColor Red
-        Write-Host "          Make sure Ollama is running and try: ollama pull llama3" -ForegroundColor Yellow
+
+$models = @("llama3", "llama3.2")
+foreach ($model in $models) {
+    if ($ollamaList -match "$model") {
+        Write-Host "      [+] $model model already installed." -ForegroundColor Green
     } else {
-        Write-Host "      [+] Llama 3 model ready." -ForegroundColor Green
+        Write-Host "      [*] Pulling $model model via Ollama (This may take a while)..." -ForegroundColor Cyan
+        ollama pull $model
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "      [-] Failed to pull $model model." -ForegroundColor Red
+            Write-Host "          Make sure Ollama is running and try: ollama pull $model" -ForegroundColor Yellow
+        } else {
+            Write-Host "      [+] $model model ready." -ForegroundColor Green
+        }
     }
 }
 

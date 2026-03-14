@@ -142,8 +142,13 @@
             <h2 class="text-2xl font-bold font-display text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-400">
                 {% block title %}Dashboard{% endblock %}
             </h2>
-            <div class="flex items-center space-x-4">
-                <span class="text-sm font-medium text-gray-400 font-display flex items-center bg-gray-800 px-3 py-1 rounded-full border border-gray-700"><i class="fa-solid fa-microchip text-cyber-blue mr-2"></i>Local LLM Active</span>
+            <div class="flex items-center relative">
+                <i class="fa-solid fa-microchip text-cyber-blue absolute left-3 z-10 pointer-events-none"></i>
+                <select id="model-selector" class="text-sm font-medium text-gray-400 font-display flex items-center bg-gray-800 pl-10 pr-8 py-1 rounded-full border border-gray-700 focus:outline-none focus:border-cyber-blue transition-colors w-60 appearance-none cursor-pointer">
+                    <option value="llama3" {% if active_model == 'llama3' %}selected{% endif %}>Llama 3 (Thinking)</option>
+                    <option value="llama3.2" {% if active_model == 'llama3.2' %}selected{% endif %}>Llama 3.2 (Fast)</option>
+                </select>
+                <i class="fa-solid fa-chevron-down text-gray-500 absolute right-3 text-xs z-10 pointer-events-none"></i>
             </div>
         </header>
 
@@ -202,6 +207,28 @@
             }
         }
     </script>
-    </link>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const selector = document.getElementById('model-selector');
+
+            selector.addEventListener('change', async (e) => {
+                const model = e.target.value;
+                try {
+                    const res = await fetch('/api/set_model', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model })
+                    });
+                    const data = await res.json();
+                    if (data.status === 'pulling') {
+                        alert(data.message);
+                    }
+                    window.location.reload();
+                } catch (e) {
+                    console.error("Failed to set model", e);
+                }
+            });
+        });
+    </script>
 </body>
 </html>

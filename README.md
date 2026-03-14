@@ -11,7 +11,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10+-blue?logo=python&logoColor=white" alt="Python"/>
   <img src="https://img.shields.io/badge/Flask-3.0-lightgrey?logo=flask" alt="Flask"/>
-  <img src="https://img.shields.io/badge/LLM-Llama_3-green?logo=meta" alt="Llama 3"/>
+  <img src="https://img.shields.io/badge/LLM-Llama_3_&_3.2-green?logo=meta" alt="Llama 3"/>
   <img src="https://img.shields.io/badge/Ollama-Local_AI-black?logo=ollama" alt="Ollama"/>
   <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License"/>
 </p>
@@ -43,7 +43,7 @@
 
 ## About the Project
 
-**IntelliBlue** is a fully local, AI-powered Security Operations Center (SOC) platform designed for cybersecurity analysts, students, and enthusiasts. It combines a modern web dashboard with a locally-hosted Large Language Model (Llama 3 via Ollama) to deliver real-time threat analysis, interactive incident investigation, and structured incident reporting.
+**IntelliBlue** is a fully local, AI-powered Security Operations Center (SOC) platform designed for cybersecurity analysts, students, and enthusiasts. It combines a modern web dashboard with a locally-hosted Large Language Model (Llama 3 or 3.2 via Ollama) to deliver real-time threat analysis, interactive incident investigation, and structured incident reporting.
 
 ### What It Does
 
@@ -58,7 +58,7 @@
 | ------------------- | -------------------------------------------------- |
 | **Backend**         | Flask 3.0, Flask-SQLAlchemy, Python 3.10+          |
 | **Database**        | SQLite (local, zero-config)                        |
-| **AI Engine**       | Ollama running Llama 3 (8B) locally                |
+| **AI Engine**       | Ollama running Llama 3 & Llama 3.2 locally         |
 | **Network Parsing** | Scapy (PCAP/PCAPNG analysis)                       |
 | **PDF Generation**  | fpdf2 with HTML rendering                          |
 | **Frontend**        | Tailwind CSS, Marked.js, DOMPurify, Font Awesome 6 |
@@ -100,7 +100,8 @@
 
 | Feature                        | Description                                                                                                                                                                                             |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Chat About Any Alert**       | From the Alerts page, click "Investigate with AI" to open a new chat session with the full alert context pre-loaded. Ask follow-up questions, request mitigation steps, or challenge the AI's findings. |
+| **Dynamic Local Model Swapping**   | On the fly, change which active local model serves as your primary AI engine inside the top nav. You are free to pick between **Thinking mode** (for complex tasks) and **fast mode** (for quick responses). |
+  | **Chat About Any Alert**       | From the Alerts page, click "Investigate with AI" to open a new chat session with the full alert context pre-loaded. Ask follow-up questions, request mitigation steps, or challenge the AI's findings. |
 | **Alert Lifecycle Management** | Move alerts through a full workflow: **Active** → **Resolved** (archived) or **False Positive** (with analyst reasoning). Restore any archived alert back to Active if needed.                          |
 | **PDF Report Export**          | Export any alert or archived report as a professionally formatted PDF document with severity color-coding and Markdown-rendered content.                                                                |
 | **Severity-Sorted Alerts**     | Active alerts are auto-sorted by severity: Critical → High → Medium → Low, so the most urgent threats are always at the top.                                                                            |
@@ -117,7 +118,7 @@
 
 ```
 Backend:    Flask 3.0 · Flask-SQLAlchemy · SQLite · Python 3.10+
-AI:         Ollama · Llama 3 (8B) · Streaming API
+AI:         Ollama · Llama 3 & Llama 3.2 · Streaming API
 Parsing:    Scapy (PCAP) · csv/json (structured logs)
 Frontend:   Tailwind CSS · Marked.js · DOMPurify · Font Awesome 6
 PDF:        fpdf2 with HTML-to-PDF rendering
@@ -130,7 +131,7 @@ Security:   Werkzeug · DOMPurify · Prompt injection guards
 
 > **⚠️ WARNING:** Installing and running IntelliBlue inside a Virtual Machine (VM) is highly discouraged. Running local Large Language Models (like Llama 3) inside a VM without dedicated GPU power will result in severely degraded performance and extremely slow AI response times.
 
-> **ℹ️ NOTE:** Installation may take a while because the Llama 3 model is nearly 5GB in size.
+> **ℹ️ NOTE:** Installation may take a while because the Llama models are nearly 7GB in size.
 
 ### Windows (Automated Install)
 
@@ -144,8 +145,8 @@ This script will automatically:
 
 1. Verify Administrator privileges
 2. Install Git, Python 3.12, Ollama, and Npcap (if missing)
-3. Download the Llama 3 model via Ollama
-4. Clone the repository to the `%USERPROFILE%\IntelliBlue` folder
+3. Download the Llama models via Ollama
+4. Clone the repository to the `%USERPROFILE%\Desktop\IntelliBlue` folder
 5. Create a virtual environment and install all dependencies
 6. Prompt you to launch the app immediately
 
@@ -161,8 +162,8 @@ This script will automatically:
 
 1. Detect your package manager (apt, dnf, pacman)
 2. Install Git, Python 3 (with pip/venv), Ollama, and `libpcap` (if missing)
-3. Start the Ollama service and download the Llama 3 model
-4. Clone the repository to the `~/IntelliBlue` directory
+3. Start the Ollama service and download the Llama models
+4. Clone the repository to the `~/Desktop/IntelliBlue` directory
 5. Create a Python virtual environment and install all dependencies
 6. Prompt you to launch the app immediately
 
@@ -179,8 +180,9 @@ If you prefer to install everything yourself:
 git clone https://github.com/AbdulrazzakSwai/IntelliBlue.git
 cd IntelliBlue
 
-# 3. Pull the Llama 3 model and run it
+# 3. Pull the Llama models and run it
 ollama pull llama3
+ollama pull llama3.2
 ollama run llama3 "system initialization"
 
 # 4. Create and activate a virtual environment
@@ -210,7 +212,7 @@ The dashboard is your SOC overview at a glance:
 
 - **Total Logs Ingested** — Count of all log files that have been analyzed.
 - **Active Alerts** — Number of unresolved alerts awaiting triage.
-- **AI Engine Core** — Shows the active LLM model (Llama 3) and system status.
+- **AI Engine Core** — Shows the active LLM model and system status.
 - **Recent Alerts** — The three most recent alerts with severity badges. Click any alert to jump to its details.
 - **Quick Actions** — "Upload Logs" and "Ask AI Assistant" buttons for fast navigation.
 
@@ -285,5 +287,9 @@ IntelliBlue implements multiple layers of security:
 
 <p align="center">
   <b>IntelliBlue</b> — Your Local AI-Powered SOC Analyst<br>
-  <sub>Built with Flask · Powered by Llama 3 · Secured by Design</sub>
+  <sub>Built with Flask · Powered by Llama Models · Secured by Design</sub>
 </p>
+
+
+
+
