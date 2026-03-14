@@ -162,7 +162,7 @@ This script will automatically:
 
 1. Detect your package manager (apt, dnf, pacman)
 2. Install Git, Python 3 (with pip/venv), Ollama, and `libpcap` (if missing)
-3. Start the Ollama service and download the Llama models
+3. Download the Llama models via Ollama
 4. Clone the repository to the `~/Desktop/IntelliBlue` directory
 5. Create a Python virtual environment and install all dependencies
 6. Prompt you to launch the app immediately
@@ -180,10 +180,9 @@ If you prefer to install everything yourself:
 git clone https://github.com/AbdulrazzakSwai/IntelliBlue.git
 cd IntelliBlue
 
-# 3. Pull the Llama models and run it
+# 3. Pull the Llama models
 ollama pull llama3
 ollama pull llama3.2
-ollama run llama3 "system initialization"
 
 # 4. Create and activate a virtual environment
 # Windows:
