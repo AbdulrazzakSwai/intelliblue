@@ -100,7 +100,7 @@
 
 | Feature                        | Description                                                                                                                                                                                             |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Dynamic Local Model Swapping**   | On the fly, change which active local model serves as your primary AI engine inside the top nav. You are free to pick between **Thinking mode** (for complex tasks) and **fast mode** (for quick responses). |
+| **Dynamic Local Model Swapping**   | On the fly, change which active local model serves as your primary AI engine inside the top nav. You are free to pick between **Thinking mode** (for complex tasks) and **Fast mode** (for quick responses). |
   | **Chat About Any Alert**       | From the Alerts page, click "Investigate with AI" to open a new chat session with the full alert context pre-loaded. Ask follow-up questions, request mitigation steps, or challenge the AI's findings. |
 | **Alert Lifecycle Management** | Move alerts through a full workflow: **Active** → **Resolved** (archived) or **False Positive** (with analyst reasoning). Restore any archived alert back to Active if needed.                          |
 | **PDF Report Export**          | Export any alert or archived report as a professionally formatted PDF document with severity color-coding and Markdown-rendered content.                                                                |
