@@ -36,11 +36,17 @@ try {
 # Check Python
 $pythonInstalled = $false
 try {
-    $null = Get-Command "python" -ErrorAction Stop
-    $pyVer = (python --version)
-    Write-Host "      [+] Found Python: $pyVer" -ForegroundColor Green
-    $pythonInstalled = $true
-} catch {
+    $null = Get-Command python -ErrorAction Stop
+    $pyVer = ((python --version) 2>&1).Trim()
+    if ($pyVer -match "Python\s+\d+\.\d+(\.\d+)?") {
+        Write-Host "      [+] Found Python: $pyVer" -ForegroundColor Green
+        $pythonInstalled = $true
+    }
+    else {
+        throw "Invalid Python response"
+    }
+}
+catch {
     Write-Host "      [-] Python is NOT installed." -ForegroundColor Red
 }
 
@@ -197,8 +203,8 @@ Write-Host ""
 # Install Dependencies
 # -------------------------------------------
 Write-Host "[*] [6/6] Installing Python dependencies..." -ForegroundColor Yellow
-& ".\venv\Scripts\python.exe" -m pip install --upgrade pip
-& ".\venv\Scripts\python.exe" -m pip install -r requirements.txt
+& ".\venv\Scripts\python.exe" -m pip install --quiet --upgrade pip
+& ".\venv\Scripts\python.exe" -m pip install --quiet -r requirements.txt
 if ($LASTEXITCODE -ne 0) {
     Write-Host "      [-] Failed to install Python dependencies." -ForegroundColor Red
     exit 1
