@@ -14,7 +14,8 @@ $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIden
 if (-not $isAdmin) {
     Write-Host "[-] This installer requires Administrator privileges." -ForegroundColor Red
     Write-Host "    Please run PowerShell as Administrator." -ForegroundColor Yellow
-    exit 1
+    Read-Host "    Press Enter to exit..."
+    return
 }
 
 # -------------------------------------------
@@ -90,7 +91,8 @@ if (-not $gitInstalled) {
         $env:Path += ";C:\Program Files\Git\cmd"
     } else {
         Write-Host "      [-] Failed to download Git. Please install manually." -ForegroundColor Red
-        exit 1
+        Read-Host "      Press Enter to exit..."
+        return
     }
 }
 
@@ -105,7 +107,8 @@ if (-not $pythonInstalled) {
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
     } else {
         Write-Host "      [-] Failed to download Python. Please install manually." -ForegroundColor Red
-        exit 1
+        Read-Host "      Press Enter to exit..."
+        return
     }
 }
 
@@ -124,7 +127,8 @@ if (-not $ollamaInstalled) {
         Start-Sleep -Seconds 5
     } else {
         Write-Host "      [-] Failed to download Ollama. Please install manually." -ForegroundColor Red
-        exit 1
+        Read-Host "      Press Enter to exit..."
+        return
     }
 }
 
@@ -202,12 +206,13 @@ Write-Host ""
 # -------------------------------------------
 # Install Dependencies
 # -------------------------------------------
-Write-Host "[*] [6/6] Installing Python dependencies..." -ForegroundColor Yellow
+Write-Host "[*] [6/6] Installing Python dependencies (This may take a while)..." -ForegroundColor Yellow
 & ".\venv\Scripts\python.exe" -m pip install --quiet --upgrade pip
 & ".\venv\Scripts\python.exe" -m pip install --quiet -r requirements.txt
 if ($LASTEXITCODE -ne 0) {
     Write-Host "      [-] Failed to install Python dependencies." -ForegroundColor Red
-    exit 1
+    Read-Host "      Press Enter to exit..."
+    return
 }
 Write-Host "      [+] Dependencies installed successfully." -ForegroundColor Green
 Write-Host ""
