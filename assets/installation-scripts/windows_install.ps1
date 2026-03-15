@@ -2,13 +2,6 @@ param(
     [switch]$ForceInstall = $false
 )
 
-# Relaunch with execution policy bypass if not already applied
-if ((Get-ExecutionPolicy) -ne 'Bypass') {
-    Write-Host "Relaunching script with ExecutionPolicy Bypass..." -ForegroundColor Yellow
-    powershell -ep bypass -File $MyInvocation.MyCommand.Path -ForceInstall:$ForceInstall
-    exit
-}
-
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host "       IntelliBlue - Automated Installer for Windows" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
