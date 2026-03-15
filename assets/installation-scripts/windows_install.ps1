@@ -1,7 +1,3 @@
-param(
-    [switch]$ForceInstall = $false
-)
-
 Write-Host "============================================================" -ForegroundColor Cyan
 Write-Host "       IntelliBlue - Automated Installer for Windows" -ForegroundColor Cyan
 Write-Host "============================================================" -ForegroundColor Cyan
@@ -75,7 +71,7 @@ Write-Host ""
 # -------------------------------------------
 # Install Missing Tools
 # -------------------------------------------
-Write-Host "[*] [2/6] Installing missing tools..." -ForegroundColor Yellow
+Write-Host "[*] [2/6] Installing missing tools (This may take a while)..." -ForegroundColor Yellow
 
 if ($gitInstalled -and $pythonInstalled -and $ollamaInstalled -and $npcapInstalled) {
     Write-Host "      [+] All tools are installed, no need to install anything." -ForegroundColor Green
@@ -149,7 +145,7 @@ Write-Host ""
 # -------------------------------------------
 # Install and run Llama models
 # -------------------------------------------
-Write-Host "[*] [3/6] Setting up Llama models..." -ForegroundColor Yellow
+Write-Host "[*] [3/6] Setting up Llama models (This may take a while)..." -ForegroundColor Yellow
 $ollamaList = (ollama list 2>&1)
 
 $models = @("llama3", "llama3.2")
@@ -177,13 +173,7 @@ Write-Host "[*] [4/6] Cloning IntelliBlue repository..." -ForegroundColor Yellow
 $installDir = "$HOME\Desktop\IntelliBlue"
 if (Test-Path $installDir) {
     Write-Host "      [*] Directory already exists at $installDir" -ForegroundColor Cyan
-    if ($ForceInstall) {
-        Write-Host "      [*] Force install specified, removing existing directory..." -ForegroundColor Yellow
-        Remove-Item -Recurse -Force $installDir
-        git clone https://github.com/AbdulrazzakSwai/IntelliBlue.git $installDir -q *>$null
-    } else {
-        Write-Host "      [*] Skipping clone. Use -ForceInstall to overwrite." -ForegroundColor Yellow
-    }
+    Write-Host "      [*] Skipping clone." -ForegroundColor Yellow
 } else {
     git clone https://github.com/AbdulrazzakSwai/IntelliBlue.git $installDir -q *>$null
 }

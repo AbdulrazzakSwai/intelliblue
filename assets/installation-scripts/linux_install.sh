@@ -60,7 +60,7 @@ echo ""
 # -------------------------------------------
 # Install Missing Tools
 # -------------------------------------------
-echo -e "${YELLOW}  [*] [2/6] Installing missing tools...${NC}"
+echo -e "${YELLOW}  [*] [2/6] Installing missing tools (This may take a while)...${NC}"
 
 if [ -z "$GIT_MISSING" ] && [ -z "$PY_MISSING" ] && [ -z "$OLLAMA_MISSING" ] && [ -z "$PCAP_MISSING" ]; then
     echo -e "${GREEN}      [+] All tools are installed, no need to install anything.${NC}"
@@ -105,7 +105,7 @@ echo ""
 # -------------------------------------------
 # Llama Models Setup
 # -------------------------------------------
-echo -e "${YELLOW}  [*] [3/6] Setting up Llama models...${NC}"
+echo -e "${YELLOW}  [*] [3/6] Setting up Llama models (This may take a while)...${NC}"
 
 # Start Ollama service if not running
 if ! pgrep -x "ollama" &>/dev/null; then
@@ -162,9 +162,9 @@ echo ""
 # -------------------------------------------
 # Install Dependencies
 # -------------------------------------------
-echo -e "${YELLOW}  [*] [6/6] Installing Python dependencies...${NC}"
-pip install --upgrade pip
-pip install -r requirements.txt
+echo -e "${YELLOW}  [*] [6/6] Installing Python dependencies (This may take a while)...${NC}"
+pip install --upgrade pip >/dev/null 2>&1
+pip install -r requirements.txt >/dev/null 2>&1
 if [ $? -ne 0 ]; then
     echo -e "${RED}  [-] Failed to install Python dependencies.${NC}"
     exit 1
