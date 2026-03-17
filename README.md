@@ -185,9 +185,9 @@ ollama pull llama3
 ollama pull llama3.2
 
 # 4. Create and activate a virtual environment
-# Windows:
+# Windows (Powershell):
 python -m venv venv
-.\venv\Scripts\activate
+Set-ExecutionPolicy Bypass -Scope Process; . .\venv\Scripts\Activate
 # Linux/macOS:
 python3 -m venv venv
 source venv/bin/activate

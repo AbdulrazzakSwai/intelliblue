@@ -217,7 +217,7 @@ Write-Host ""
 Write-Host "To start IntelliBlue, simply run these commands:" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "  cd $installDir" -ForegroundColor White
-Write-Host "  .\venv\Scripts\activate" -ForegroundColor White
+Write-Host "  Set-ExecutionPolicy Bypass -Scope Process; . .\venv\Scripts\Activate" -ForegroundColor White
 Write-Host "  python app.py" -ForegroundColor White
 Write-Host ""
 Write-Host "The application will be available at http://localhost:5000" -ForegroundColor Cyan
