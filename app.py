@@ -1,18 +1,21 @@
+import atexit
+import csv
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+import threading
+import uuid
+from datetime import datetime, timezone
+import markdown
+import requests
+from flask import Flask, render_template, request, jsonify, redirect, url_for, Response, stream_with_context, send_file
+from fpdf import FPDF, HTMLMixin
 from scapy.all import rdpcap
 from werkzeug.utils import secure_filename
-from flask import Flask, render_template, request, jsonify, redirect, url_for, Response, stream_with_context, send_file
 from models import db, LogFile, Alert, ChatSession, ChatMessage
-import csv
-import re
-import json
-import requests
-import os
-import uuid
-import markdown
-import io
-import threading
-from datetime import datetime, timezone
-from fpdf import FPDF, HTMLMixin
 
 class PDF(FPDF, HTMLMixin):
     pass
@@ -27,8 +30,25 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 db.init_app(app)
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
-ACTIVE_MODEL = "llama3"
+ACTIVE_MODEL = "llama3.2"
 active_analyses = {}
+
+def shutdown_models():
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
+        print("Shutting down Llama models...")
+        script = (
+            'import urllib.request, json; '
+            'url = "http://localhost:11434/api/generate"; '
+            'headers = {"Content-Type": "application/json"}; '
+            'models = ["llama3", "llama3.2"]; '
+            '[urllib.request.urlopen(urllib.request.Request(url, data=json.dumps({"model": m, "keep_alive": 0}).encode(), headers=headers)) for m in models]'
+        )
+        try:
+            subprocess.Popen([sys.executable, '-c', script], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception:
+            pass
+
+atexit.register(shutdown_models)
 
 @app.context_processor
 def inject_global_data():
@@ -190,14 +210,13 @@ def new_chat():
 def chat(session_id):
     sessions = ChatSession.query.order_by(ChatSession.date_created.desc()).all()
     active_session = db.get_or_404(ChatSession, session_id)
-    history = ChatMessage.query.filter_by(session_id=session_id).order_by(ChatMessage.timestamp.asc()).all()
+    history = list(ChatMessage.query.filter_by(session_id=session_id).order_by(ChatMessage.timestamp.asc()).all())
 
-    if not history:
-        welcoming_msg = {
-            'sender': 'IntelliBlue',
-            'text': "Welcome to IntelliBlue Chat. I am your expert SOC Assistant. You can ask me to explain specific alerts, draft mitigation steps, or analyze security concepts. How can I help you today?"
-        }
-        history = [welcoming_msg]
+    welcoming_msg = {
+        'sender': 'IntelliBlue',
+        'text': "Welcome to IntelliBlue Chat. I am your expert SOC Assistant. You can ask me to explain specific alerts, draft mitigation steps, or analyze security concepts. How can I help you today?"
+    }
+    history.insert(0, welcoming_msg)
 
     return render_template('chat.html', history=history, sessions=sessions, active_session=active_session)
 

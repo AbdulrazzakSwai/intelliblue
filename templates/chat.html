@@ -402,10 +402,10 @@ let currentRequestId = null;
         if (sender === 'User') {
             wrapper.className = 'flex justify-end';
             wrapper.innerHTML = `
-                <div class="bg-gradient-to-br from-cyber-blue to-blue-700 text-white p-4 rounded-2xl rounded-tr-sm max-w-2xl shadow-[0_4px_15px_rgba(14,165,233,0.3)] font-sans border border-blue-500/30 user-message-text" data-raw-text="${encodeURIComponent(text)}">
-                    <div class="flex items-center mb-1 pb-1 border-b border-blue-400/30 opacity-80 justify-end">
-                        <span class="text-[10px] uppercase tracking-widest font-display font-medium mr-2">You</span>
-                        <i class="fa-solid fa-user-astronaut text-xs"></i>
+                <div class="bg-gradient-to-br from-cyber-blue/20 to-blue-900/40 text-gray-100 p-4 rounded-2xl rounded-tr-sm max-w-2xl shadow-[0_4px_15px_rgba(47,129,247,0.15)] font-sans border border-cyber-blue/40 user-message-text backdrop-blur-sm" data-raw-text="${encodeURIComponent(text)}">
+                    <div class="flex items-center mb-2 pb-1 border-b border-cyber-blue/20 opacity-80 justify-end">
+                        <span class="text-[10px] uppercase tracking-[0.2em] font-display font-bold mr-2 text-cyber-blue">You</span>
+                        <i class="fa-solid fa-user-astronaut text-xs text-cyber-blue"></i>
                     </div>
                     ${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}
                 </div>
@@ -413,12 +413,15 @@ let currentRequestId = null;
         } else {
             wrapper.className = 'flex justify-start';
             wrapper.innerHTML = `
-                <div class="bg-gray-800 text-gray-200 p-5 rounded-2xl rounded-tl-sm max-w-2xl shadow-[0_4px_15px_rgba(0,0,0,0.4)] border border-gray-700 relative overflow-hidden group">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyber-neon to-cyber-blue opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                    <span class="font-bold text-cyber-neon text-xs uppercase tracking-widest block mb-3 border-b border-gray-700 pb-2 font-display flex items-center">
-                        <i class="fa-solid fa-robot mr-2 drop-shadow-[0_0_5px_rgba(56,189,248,0.8)]"></i> IntelliBlue AI
+                <div class="bg-gray-900/80 text-gray-200 p-6 rounded-2xl rounded-tl-sm max-w-2xl shadow-[0_4px_15px_rgba(0,0,0,0.4)] border border-gray-700/80 relative overflow-hidden group backdrop-blur-md">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-cyber-neon to-cyber-blue opacity-80 group-hover:opacity-100 transition-opacity shadow-[0_0_10px_#58a6ff]"></div>
+                    <span class="font-bold text-cyber-blue text-xs uppercase tracking-[0.2em] block mb-4 border-b border-gray-800 pb-2 font-display flex items-center">
+                        <div class="bg-cyber-blue/10 p-1.5 rounded mr-2 border border-cyber-blue/20">
+                            <i class="fa-solid fa-robot drop-shadow-[0_0_5px_rgba(47,129,247,0.8)]"></i>
+                        </div> 
+                        IntelliBlue AI
                     </span>
-                    <div id="${uniqueId}" class="ai-message-content prose prose-invert prose-base max-w-none font-sans leading-relaxed">${text}</div>
+                    <div id="${uniqueId}" class="ai-message-content prose prose-invert prose-base max-w-none text-gray-300 font-sans leading-relaxed">${text}</div>
                 </div>
             `;
         }
