@@ -43,7 +43,7 @@
 
 ## About the Project
 
-**IntelliBlue** is a fully local, AI-powered Security Operations Center (SOC) platform designed for cybersecurity analysts, students, and enthusiasts. It combines a modern web dashboard with a locally-hosted Large Language Model (Llama 3 or 3.2 via Ollama) to deliver real-time threat analysis, interactive incident investigation, and structured incident reporting.
+**IntelliBlue** is a fully local, AI-powered Security Operations Center (SOC) platform designed for cybersecurity analysts, students, and enthusiasts. It combines a modern web dashboard with a locally-hosted Large Language Model (Llama 3 and 3.2 via Ollama) to deliver real-time threat analysis, interactive incident investigation, and structured incident reporting.
 
 ### What It Does
 
