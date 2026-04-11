@@ -14,6 +14,7 @@ import requests
 from flask import Flask, render_template, request, jsonify, redirect, url_for, Response, stream_with_context, send_file
 from fpdf import FPDF, HTMLMixin
 from scapy.all import rdpcap
+from scapy.error import Scapy_Exception
 from werkzeug.utils import secure_filename
 from models import db, LogFile, Alert, ChatSession, ChatMessage
 
@@ -411,52 +412,50 @@ def parse_security_file(filepath):
     """
     Automatically detects the file type and extracts readable text.
     Limits output to prevent LLM context window overflow.
+    This function allows exceptions to bubble up to be caught safely by the upload route.
     """
     _, ext = os.path.splitext(filepath)
     ext = ext.lower()
     parsed_text = ""
     source_type = "RAW LOGS"
 
-    try:
-        if ext == '.csv':
-            source_type = "SIEM/EDR CSV DATA"
-            with open(filepath, 'r', encoding='utf-8') as f:
-                reader = csv.reader(f)
-                headers = next(reader, None)
-                parsed_text += f"Headers: {headers}\n"
-                for i, row in enumerate(reader):
-                    if i > 50:
-                        break
-                    parsed_text += f"Row {i+1}: {row}\n"
+    if ext == '.csv':
+        source_type = "SIEM/EDR CSV DATA"
+        with open(filepath, 'r', encoding='utf-8') as f:
+            reader = csv.reader(f)
+            headers = next(reader, None)
+            parsed_text += f"Headers: {headers}\n"
+            for i, row in enumerate(reader):
+                if i > 50:
+                    break
+                parsed_text += f"Row {i+1}: {row}\n"
 
-        elif ext == '.json':
-            source_type = "SIEM/EDR JSON DATA"
-            with open(filepath, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                parsed_text = json.dumps(data, indent=2)[:5000] 
+    elif ext == '.json':
+        source_type = "SIEM/EDR JSON DATA"
+        with open(filepath, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            parsed_text = json.dumps(data, indent=2)[:5000] 
 
-        elif ext in ['.pcap', '.pcapng']:
-            source_type = "NETWORK PACKET CAPTURE (PCAP)"
-            packets = rdpcap(filepath)
+    elif ext in ['.pcap', '.pcapng']:
+        source_type = "NETWORK PACKET CAPTURE (PCAP)"
+        with open(filepath, 'rb') as f:
+            packets = rdpcap(f)
             for i, pkt in enumerate(packets):
                 if i > 50:
                     break
                 parsed_text += f"Packet {i+1}: {pkt.summary()}\n"
 
-        elif ext == '.log':
-            source_type = "SYSTEM EVENT LOGS"
-            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-                parsed_text = f.read(5000)
+    elif ext == '.log':
+        source_type = "SYSTEM EVENT LOGS"
+        with open(filepath, 'r', encoding='utf-8') as f:
+            parsed_text = f.read(5000)
 
-        else:
-            source_type = "RAW TEXT LOGS"
-            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-                parsed_text = f.read(5000)
+    else:
+        source_type = "RAW TEXT LOGS"
+        with open(filepath, 'r', encoding='utf-8') as f:
+            parsed_text = f.read(5000)
 
-        return source_type, parsed_text
-
-    except Exception as e:
-        return "ERROR", f"Parsing failed: {str(e)}"
+    return source_type, parsed_text
 
 @app.route('/api/upload', methods=['POST'])
 def api_upload():
@@ -483,10 +482,28 @@ def api_upload():
 
     file.save(filepath)
 
-    source_type, log_content = parse_security_file(filepath)
-
-    if source_type == "ERROR":
-        return jsonify({"error": log_content}), 500
+    try:
+        source_type, log_content = parse_security_file(filepath)
+    except json.JSONDecodeError:
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        return jsonify({"error": "Invalid or corrupted JSON format."}), 422
+    except csv.Error:
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        return jsonify({"error": "Invalid or corrupted CSV format."}), 422
+    except UnicodeDecodeError:
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        return jsonify({"error": "File encoding error. Make sure it is a valid text file."}), 422
+    except (Scapy_Exception, ValueError, TypeError):
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        return jsonify({"error": "Invalid or corrupted PCAP network capture file."}), 422
+    except Exception as e:
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        return jsonify({"error": f"An unexpected error occurred while reading the file: {str(e)}"}), 400
 
     system_prompt = f"""You are IntelliBlue, an expert SOC AI Analyst performing a formal incident analysis on a {source_type} log file.
 Your task is to produce a comprehensive, structured Incident Report based on the provided data.
@@ -632,7 +649,7 @@ def cancel_upload():
                     obj.close()
                 except Exception:
                     pass
-        active_analyses[task_id] = "cancelled"
+            active_analyses[task_id] = "cancelled"
         return jsonify({"status": "cancelled"}), 200
     return jsonify({"status": "bad request"}), 400
 
